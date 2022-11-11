@@ -106,12 +106,27 @@
       <PreprocessorDefinitions>WIN64;_DEBUG;_CONSOLE;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN64;NDEBUG;_CONSOLE;RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\bmd.c" />
     <ClCompile Include="src\main.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\bmd.h" />
+    <ClInclude Include="include\drw1.h" />
+    <ClInclude Include="include\evp1.h" />
+    <ClInclude Include="include\inf1.h" />
+    <ClInclude Include="include\jnt1.h" />
+    <ClInclude Include="include\mat3.h" />
+    <ClInclude Include="include\mdl3.h" />
+    <ClInclude Include="include\shp1.h" />
+    <ClInclude Include="include\tex1.h" />
+    <ClInclude Include="include\vtx1.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
