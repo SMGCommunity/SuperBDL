@@ -3,10 +3,19 @@
 
 #include <stdbool.h>
 #include <bmd.h>
+#include <vector.h>
 
 #define MAGIC_SHP1 "SHP1"
 
 bool writeSHP1(model_data data);
+
+struct Shape
+{
+	DisplayFlags displayFlags;
+
+	float boundingRadius;
+	Vector3f boundingMin, boundingMax;
+};
 
 enum DisplayFlags
 {
@@ -18,9 +27,21 @@ enum DisplayFlags
 
 enum PrimitiveType
 {
+	// ????
+	NONE = 0x00,
+	LOAD_INDX_A = 0x20,
+	LOAD_INDX_B = 0x28,
+	LOAD_INDX_C = 0x30,
+	LOAD_INDX_D = 0x38,
+
+	LOAD_BP_REG = 0x61,
+	LOAD_CP_REG = 0x08,
+	LOAD_XF_REG = 0x10,
+
 	// Don't need to support
 	QUADRILATERAL = 0x80,
-
+	// Duplicate seen in Luigi's mansion?
+	QUADRILATERAL_2 = 0x88,
 	// Required to support
 	TRIANGLE = 0x90,
 	// Required to support

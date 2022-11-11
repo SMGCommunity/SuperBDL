@@ -53,7 +53,7 @@ enum GXAttr
 	TEXTURE6	 = 0x13,
 	TEXTURE7	 = 0x14,
 
-	//What does this do?
+	//Don't use this.
 	NORMAL_BINORMAL_TANGENT = 0x19,
 
 	NULL = 0xFF
