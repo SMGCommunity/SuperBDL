@@ -74,6 +74,11 @@ int main(int argc, char **argv) {
 
 	const struct aiScene *model_data = aiImportFile(input_path, 0);
 
+	if (!model_data) {
+		printf("Failed to parse input model: %s\n", aiGetErrorString());
+		return 1;
+	}
+
 	FILE *output_fp = fopen(output_path, "w");
 	if (!output_fp) {
 		fprintf(stderr, "Failed to open %s: %s\n", output_path, strerror(errno));
