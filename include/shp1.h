@@ -7,7 +7,7 @@
 
 #define MAGIC_SHP1 "SHP1"
 
-bool writeSHP1(model_data data);
+bool writeSHP1(const struct aiScene *data);
 
 struct Shape
 {

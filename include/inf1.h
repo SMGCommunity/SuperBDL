@@ -6,7 +6,7 @@
 
 #define MAGIC_INF1 "INF1"
 
-bool writeINF1(model_data data);
+bool writeINF1(const struct aiScene *data);
 bool writeINF1Node(HierarchyNodeType type, unsigned short index);
 
 enum HierarchyNodeType

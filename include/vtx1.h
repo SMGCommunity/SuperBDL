@@ -6,7 +6,7 @@
 
 #define MAGIC_VTX1 "VTX1"
 
-bool writeVTX1(model_data data);
+bool writeVTX1(const struct aiScene *data);
 bool writeGXVertexAttribute(GXVertexAttribute attribute);
 
 struct GXVertexAttribute

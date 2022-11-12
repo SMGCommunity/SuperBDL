@@ -8,7 +8,7 @@
 
 #define MAGIC_MAT3 "MAT3"
 
-bool writeMAT3(model_data data);
+bool writeMAT3(const struct aiScene *data);
 
 
 struct Material

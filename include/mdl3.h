@@ -6,7 +6,7 @@
 
 #define MAGIC_MDL3 "MDL3"
 
-bool writeMDL3(model_data data);
+bool writeMDL3(const struct aiScene *data);
 
 //TODO: Fill in
 

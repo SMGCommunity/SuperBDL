@@ -6,7 +6,7 @@
 
 #define MAGIC_DRW1 "DRW1"
 
-bool writeDRW1(model_data data);
+bool writeDRW1(const struct aiScene *data);
 
 enum DRWMatrixType
 {

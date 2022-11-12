@@ -3,16 +3,12 @@
 #include <errno.h>
 #include <stdio.h>
 
+#include <assimp/cimport.h>
+
 #include "bmd.h"
 
 void show_help(void) {
 	puts("placeholder help text");
-}
-
-// placeholder
-bool parse_dae(struct model_data parsed_model_data, FILE *input_fp) {
-	// true for success, false for error
-	return true;
 }
 
 int main(int argc, char **argv) {
@@ -66,19 +62,7 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-	struct model_data parsed_model_data;
-	FILE *input_fp = fopen(input_path, "r");
-	if (!input_fp) {
-		fprintf(stderr, "Failed to open %s: %s\n", input_path, strerror(errno));
-		return 1;
-	}
-
-	if (!parse_dae(parsed_model_data, input_fp)) {
-		// failed
-		return 1;
-	}
-
-	fclose(input_fp);
+	const struct aiScene *model_data = aiImportFile(input_path, 0);
 
 	FILE *output_fp = fopen(output_path, "w");
 	if (!output_fp) {
@@ -86,7 +70,7 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-	if (!write_bmd(parsed_model_data, output_fp, output_bdl, sm3das)) {
+	if (!write_bmd(model_data, output_fp, output_bdl, sm3das)) {
 		// failed
 		return 1;
 	}

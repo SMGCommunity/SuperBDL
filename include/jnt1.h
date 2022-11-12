@@ -8,7 +8,7 @@
 
 #define MAGIC_JNT1 "JNT1"
 
-bool writeJNT1(model_data data);
+bool writeJNT1(const struct aiScene *data);
 bool writeJoint(Joint joint);
 
 short floatToShortRotation(float val);

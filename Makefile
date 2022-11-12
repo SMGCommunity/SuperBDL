@@ -14,4 +14,4 @@ clean:
 	rm -rf $(TARGET)
 
 $(TARGET): $(C_FILES)
-	$(CC) $(CFLAGS) -I $(INCLUDE_DIR) -o $@ $(C_FILES)
+	$(CC) $(CFLAGS) -I $(INCLUDE_DIR) -lassimp -o $@ $(C_FILES)

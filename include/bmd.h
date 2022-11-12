@@ -3,10 +3,8 @@
 
 #include <stdbool.h>
 
-struct model_data {
-	int placeholder;
-};
+#include <assimp/scene.h>
 
-bool write_bmd(struct model_data parsed_model_data, FILE *output_fp, bool write_bdl, bool sm3das);
+bool write_bmd(const struct aiScene *model_data, FILE *output_fp, bool write_bdl, bool sm3das);
 
 #endif /* __BMD_H */

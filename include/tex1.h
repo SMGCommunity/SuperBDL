@@ -6,7 +6,7 @@
 
 #define MAGIC_TEX1 "TEX1"
 
-bool writeTEX1(model_data data);
+bool writeTEX1(const struct aiScene *data);
 
 //TODO: Fill in
 

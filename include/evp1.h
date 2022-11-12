@@ -6,6 +6,6 @@
 
 #define MAGIC_EVP1 "EVP1"
 
-bool writeEVP1(model_data data);
+bool writeEVP1(const struct aiScene *data);
 
 #endif /* __EVP1_H */
