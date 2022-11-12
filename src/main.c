@@ -12,6 +12,7 @@ void show_help(void) {
 }
 
 int main(int argc, char **argv) {
+	bool format_forced = false;
 	bool output_bdl = true;
 	bool sm3das = false;
 	const char *input_path = NULL;
@@ -26,8 +27,10 @@ int main(int argc, char **argv) {
 				show_help();
 				return 0;
 			} else if (!strcmp(argv[i], "--bmd") || !strcmp(argv[i], "-b")) {
+				format_forced = true;
 				output_bdl = false;
 			} else if (!strcmp(argv[i], "--bdl") || !strcmp(argv[i], "-B")) {
+				format_forced = true;
 				output_bdl = true;
 			} else if (!strcmp(argv[i], "--sm3das")) {
 				output_bdl = true; // implies --bdl
@@ -60,6 +63,13 @@ int main(int argc, char **argv) {
 		fputs("Missing output path\n", stderr);
 		show_help();
 		return 1;
+	}
+
+	if (!format_forced) {
+		size_t output_len = strlen(output_path);
+
+		if (output_len >= 4 && !strcasecmp(output_path + output_len - 4, ".bmd"))
+			output_bdl = false;
 	}
 
 	const struct aiScene *model_data = aiImportFile(input_path, 0);
