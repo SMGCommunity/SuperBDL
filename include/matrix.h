@@ -1,6 +1,15 @@
 #ifndef __MATRIX_H
 #define __MATRIX_H
 
+union Matrix2x3f
+{
+	struct {
+		float m00, m01, m02;
+		float m10, m11, m12;
+	};
+	float values[2][3];
+};
+
 union Matrix4x4f
 {
 	struct {

@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Header Files\Math">
+      <UniqueIdentifier>{a1900f28-dc0c-4eaa-926d-025ee5e5b216}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Sections">
+      <UniqueIdentifier>{705d2905-91c0-4182-9b7f-b5077701ba6a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.c">
@@ -26,38 +32,38 @@
     <ClInclude Include="include\bmd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\drw1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\evp1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\inf1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jnt1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\mat3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\mdl3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\shp1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\tex1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\vtx1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\vector.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="include\matrix.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\drw1.h">
+      <Filter>Header Files\Sections</Filter>
+    </ClInclude>
+    <ClInclude Include="include\evp1.h">
+      <Filter>Header Files\Sections</Filter>
+    </ClInclude>
+    <ClInclude Include="include\inf1.h">
+      <Filter>Header Files\Sections</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jnt1.h">
+      <Filter>Header Files\Sections</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mat3.h">
+      <Filter>Header Files\Sections</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mdl3.h">
+      <Filter>Header Files\Sections</Filter>
+    </ClInclude>
+    <ClInclude Include="include\shp1.h">
+      <Filter>Header Files\Sections</Filter>
+    </ClInclude>
+    <ClInclude Include="include\tex1.h">
+      <Filter>Header Files\Sections</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vtx1.h">
+      <Filter>Header Files\Sections</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

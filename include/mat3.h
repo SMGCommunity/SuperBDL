@@ -26,7 +26,13 @@ struct LightChannel
 	DiffuseFunction diffuseFunction;
 	AttenuationFunction attenuationFunction;
 	ColorSrc ambientSource;
+	/// <summary>
+	/// For alpha channels, only set the A value
+	/// </summary>
+	Vector4uc diffuseColor, ambientColor;
 };
+
+//Ignore the Light colours section as it's useless
 
 struct TexCoordGen
 {
@@ -50,6 +56,68 @@ struct TexMatrix
 	Vector2f translation;
 	Matrix4x4f effectMatrix;
 };
+
+/// <summary>
+/// There can only be 4 of these in a file
+/// </summary>
+struct IndirectTevStage
+{
+	TexCoordID texCoordID;
+	TexMapID texMapID;
+
+	IndTexScale scaleX, scaleY;
+
+	Matrix2x3f matrix;
+	float scale;
+};
+
+/// <summary>
+/// There can only be 16 of these in a file
+/// </summary>
+struct TevStage
+{
+	//Color
+	GXCombineColor colorInA;
+	GXCombineColor colorInB;
+	GXCombineColor colorInC;
+	GXCombineColor colorInD;
+	GXTevOp colorOperation;
+	GXTevBias colorBias;
+	GXTevScale colorScale;
+	bool colorClamp;
+	GXRegister colorOutRegister;
+
+	//Alpha
+	GXCombineAlpha alphaInA;
+	GXCombineAlpha alphaInB;
+	GXCombineAlpha alphaInC;
+	GXCombineAlpha alphaInD;
+	GXTevOp alphaOperation;
+	GXTevBias alphaBias;
+	GXTevScale alphaScale;
+	bool alphaClamp;
+	GXRegister alphaOutRegister;
+
+	//TevOrder
+	TexCoordID textureCoordID;
+	TexMapID textureMapID;
+	GXRasterizerChannelID channelID;
+
+	//Constant Selections
+	GXConstantColor ConstantColorSelection;
+	GXConstantAlpha ConstantAlphaSelection;
+
+	SwapTable RasterizerSwapTable;
+	SwapTable TextureSwapTable;
+
+	IndirectTevStage* indirectStagePtr;
+};
+struct SwapTable
+{
+	GXTevColorChannel RED, GREEN, BLUE, ALPHA;
+};
+
+
 
 enum ColorSrc
 {
@@ -256,4 +324,270 @@ enum TexMtxMapMode {
 	ENVIRONMENT_EFFECTMTX = 0x0B,
 };
 
+enum TexCoordID {
+	TEXCOORD0 = 0,
+	TEXCOORD1 = 1,
+	TEXCOORD2 = 2,
+	TEXCOORD3 = 3,
+	TEXCOORD4 = 4,
+	TEXCOORD5 = 5,
+	TEXCOORD6 = 6,
+	TEXCOORD7 = 7,
+	NULL = 0xFF,
+};
+
+enum TexMapID {
+	TEXMAP0 = 0,
+	TEXMAP1 = 1,
+	TEXMAP2 = 2,
+	TEXMAP3 = 3,
+	TEXMAP4 = 4,
+	TEXMAP5 = 5,
+	TEXMAP6 = 6,
+	TEXMAP7 = 7,
+	NULL = 0xFF,
+};
+
+enum IndTexScale {
+	/// <summary>
+	/// x1.0
+	/// </summary>
+	_1 = 0,
+	_2 = 1,
+	_4 = 2,
+	_8 = 3,
+	_16 = 4,
+	_32 = 5,
+	_64 = 6,
+	_128 = 7,
+	_256 = 8,
+};
+
+enum GXCombineColor
+{
+	/// <summary>
+	/// Use the color value from previous TEV stage
+	/// </summary>
+	COLORPREVIOUS = 0x00,
+	/// <summary>
+	/// Use the alpha value from previous TEV stage
+	/// </summary>
+	ALPHAPREVIOUS = 0x01,
+	/// <summary>
+	/// Use the color value from the color/output register 0
+	/// </summary>
+	COLORREGISTER0 = 0x02,
+	/// <summary>
+	/// Use the alpha value from the color/output register 0
+	/// </summary>
+	ALPHAREGISTER0 = 0x03,
+	/// <summary>
+	/// Use the color value from the color/output register 1
+	/// </summary>
+	COLORREGISTER1 = 0x04,
+	/// <summary>
+	/// Use the alpha value from the color/output register 1
+	/// </summary>
+	ALPHAREGISTER1 = 0x05,
+	/// <summary>
+	/// Use the color value from the color/output register 2
+	/// </summary>
+	COLORREGISTER2 = 0x06, /*!<  */
+	/// <summary>
+	/// Use the alpha value from the color/output register 2
+	/// </summary>
+	ALPHAREGISTER2 = 0x07,
+	/// <summary>
+	/// Use the color value from texture
+	/// </summary>
+	TEXTURECOLOR = 0x08,
+	/// <summary>
+	/// Use the alpha value from texture
+	/// </summary>
+	TEXTUREALPHA = 0x09,
+	/// <summary>
+	/// Use the color value from rasterizer
+	/// </summary>
+	RASTERIZERCOLOR = 0x0A,
+	/// <summary>
+	/// Use the alpha value from rasterizer
+	/// </summary>
+	RASTERIZERALPHA = 0x0B,
+	/// <summary>
+	/// Use to pass one as value
+	/// </summary>
+	ONE = 0x0C,
+	/// <summary>
+	/// Use to pass 0.5 as value
+	/// </summary>
+	HALF = 0x0D,
+	/// <summary>
+	/// Use the selected CONSTANT value
+	/// </summary>
+	CONSTANTSELECTION = 0x0E,
+	/// <summary>
+	/// Use to pass zero as value
+	/// </summary>
+	ZERO = 0x0F
+};
+enum GXCombineAlpha
+{
+	/// <summary>
+	/// Use the alpha value from previous TEV stage
+	/// </summary>
+	ALPHAPREVIOUS = 0x00,
+	/// <summary>
+	/// Use the alpha value from the color/output register 0
+	/// </summary>
+	ALPHAREGISTER0 = 0x01,
+	/// <summary>
+	/// Use the alpha value from the color/output register 0
+	/// </summary>
+	ALPHAREGISTER1 = 0x02,
+	/// <summary>
+	/// Use the alpha value from the color/output register 0
+	/// </summary>
+	ALPHAREGISTER2 = 0x03,
+	/// <summary>
+	/// Use the alpha value from texture
+	/// </summary>
+	TEXTUREALPHA = 0x04,
+	/// <summary>
+	/// Use the alpha value from rasterizer
+	/// </summary>
+	RASTERIZERALPHA = 0x05,
+	/// <summary>
+	/// Use the selected CONSTANT value
+	/// </summary>
+	CONSTANTSELECTION = 0x06,
+	/// <summary>
+	/// Use to pass zero as value
+	/// </summary>
+	ZERO = 0x07
+};
+enum GXTevOp
+{
+	ADD = 0,
+	SUB = 1,
+	COMP_R8_GT = 8,
+	COMP_R8_EQ = 9,
+	COMP_GR16_GT = 10,
+	COMP_GR16_EQ = 11,
+	COMP_BGR24_GT = 12,
+	COMP_BGR24_EQ = 13,
+	COMP_RGB8_GT, COMP_A8_GT = 14,
+	COMP_RGB8_EQ, COMP_A8_EQ = 15,
+};
+enum GXTevBias
+{
+	ZERO = 0,
+	ADDHALF = 1,
+	SUBHALF = 2,
+
+	// Used to denote the compare ops to the HW.
+	HWB_COMPARE = 3,
+};
+enum GXTevScale
+{
+	SCALE_1, SCALE_NONE = 0,
+	SCALE_2 = 1,
+	SCALE_4 = 2,
+	DIVIDE_2 = 3,
+
+	// Used to denote the width of the compare op.
+	HWB_R8 = 0,
+	HWB_GR16 = 1,
+	HWB_BGR24 = 2,
+	HWB_RGB8 = 3,
+};
+enum GXRegister
+{
+	PREVIOUS, REGISTER3 = 0x00,
+	REGISTER0 = 0x01,
+	REGISTER1 = 0x02,
+	REGISTER2 = 0x03,
+};
+enum GXRasterizerChannelID
+{
+	COLOR0_ALPHA0 = 0x00,
+	COLOR1_ALPHA1 = 0x01,
+	ALPHA_BUMP = 0x05,
+	// Also known as ALPHA_BUMP_N
+	ALPHA_NORMAL = 0x06,
+	ZERO = 0x07,
+};
+enum GXConstantColor
+{
+	ONE = 0x00, /*!< constant 1.0 */
+	SEVEN_EIGHTHS = 0x01, /*!< constant 7/8 */
+	SIX_EIGHTHS = 0x02, /*!< constant 6/8 */
+	FIVE_EIGHTHS = 0x03, /*!< constant 5/8 */
+	FOUR_EIGHTHS = 0x04, /*!< constant 4/8 */
+	THREE_EIGHTHS = 0x05, /*!< constant 3/8 */
+	TWO_EIGHTHS = 0x06, /*!< constant 2/8 */
+	ONE_EIGHTH = 0x07, /*!< constant 1/8 */
+
+	COLOR_CONSTANT0 = 0x0C, /*!< K0[RGB] register */
+	COLOR_CONSTANT1 = 0x0D, /*!< K1[RGB] register */
+	COLOR_CONSTANT2 = 0x0E, /*!< K2[RGB] register */
+	COLOR_CONSTANT3 = 0x0F, /*!< K3[RGB] register */
+
+	RED_CONSTANT0 = 0x10, /*!< K0[RRR] register */
+	RED_CONSTANT1 = 0x11, /*!< K1[RRR] register */
+	RED_CONSTANT2 = 0x12, /*!< K2[RRR] register */
+	RED_CONSTANT3 = 0x13, /*!< K3[RRR] register */
+
+	GREEN_CONSTANT0 = 0x14, /*!< K0[GGG] register */
+	GREEN_CONSTANT1 = 0x15, /*!< K1[GGG] register */
+	GREEN_CONSTANT2 = 0x16, /*!< K2[GGG] register */
+	GREEN_CONSTANT3 = 0x17, /*!< K3[GGG] register */
+
+	BLUE_CONSTANT0 = 0x18, /*!< K0[BBB] register */
+	BLUE_CONSTANT1 = 0x19, /*!< K1[BBB] register */
+	BLUE_CONSTANT2 = 0x1A, /*!< K2[BBB] register */
+	BLUE_CONSTANT3 = 0x1B, /*!< K3[RBB] register */
+
+	ALPHA_CONSTANT0 = 0x1C, /*!< K0[AAA] register */
+	ALPHA_CONSTANT1 = 0x1D, /*!< K1[AAA] register */
+	ALPHA_CONSTANT2 = 0x1E, /*!< K2[AAA] register */
+	ALPHA_CONSTANT3 = 0x1F, /*!< K3[AAA] register */
+};
+enum GXConstantAlpha
+{
+	ONE = 0x00, /*!< constant 1.0 */
+	SEVEN_EIGHTHS = 0x01, /*!< constant 7/8 */
+	SIX_EIGHTHS = 0x02, /*!< constant 6/8 */
+	FIVE_EIGHTHS = 0x03, /*!< constant 5/8 */
+	FOUR_EIGHTHS = 0x04, /*!< constant 4/8 */
+	THREE_EIGHTHS = 0x05, /*!< constant 3/8 */
+	TWO_EIGHTHS = 0x06, /*!< constant 2/8 */
+	ONE_EIGHTH = 0x07, /*!< constant 1/8 */
+
+	RED_CONSTANT0 = 0x10, /*!< K0[R] register */
+	RED_CONSTANT1 = 0x11, /*!< K1[R] register */
+	RED_CONSTANT2 = 0x12, /*!< K2[R] register */
+	RED_CONSTANT3 = 0x13, /*!< K3[R] register */
+
+	GREEN_CONSTANT0 = 0x14, /*!< K0[G] register */
+	GREEN_CONSTANT1 = 0x15, /*!< K1[G] register */
+	GREEN_CONSTANT2 = 0x16, /*!< K2[G] register */
+	GREEN_CONSTANT3 = 0x17, /*!< K3[G] register */
+
+	BLUE_CONSTANT0 = 0x18, /*!< K0[B] register */
+	BLUE_CONSTANT1 = 0x19, /*!< K1[B] register */
+	BLUE_CONSTANT2 = 0x1A, /*!< K2[B] register */
+	BLUE_CONSTANT3 = 0x1B, /*!< K3[R] register */
+
+	ALPHA_CONSTANT0 = 0x1C, /*!< K0[A] register */
+	ALPHA_CONSTANT1 = 0x1D, /*!< K1[A] register */
+	ALPHA_CONSTANT2 = 0x1E, /*!< K2[A] register */
+	ALPHA_CONSTANT3 = 0x1F, /*!< K3[A] register */
+};
+enum GXTevColorChannel
+{
+	RED = 0x00,
+	GREEN = 0x01,
+	BLUE = 0x02,
+	ALPHA = 0x03,
+};
 #endif /* __MAT3_H */

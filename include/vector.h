@@ -31,6 +31,21 @@ union Vector4f
 	};
 	float values[4];
 };
+union Vector4uc
+{
+	struct {
+		unsigned char r, g, b, a;
+	};
+	unsigned char values[4];
+	unsigned int value;
+};
+union Vector4s
+{
+	struct {
+		short r, g, b, a;
+	};
+	short values[4];
+};
 
 void writeVector(Vector2f vec);
 void writeVector(Vector3f vec);
