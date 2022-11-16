@@ -3,6 +3,12 @@
 #include <errno.h>
 #include <stdio.h>
 
+#ifdef _MSC_VER
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+#endif
+
+#include <assimp/scene.h>
 #include <assimp/cimport.h>
 
 #include "bmd.h"
