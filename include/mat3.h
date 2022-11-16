@@ -489,7 +489,7 @@ enum GXTevBias
 };
 enum GXTevScale
 {
-	SCALE_1, SCALE_NONE = 0,
+	SCALE_1 = 0,
 	SCALE_2 = 1,
 	SCALE_4 = 2,
 	DIVIDE_2 = 3,
