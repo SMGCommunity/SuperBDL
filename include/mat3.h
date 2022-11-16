@@ -333,7 +333,7 @@ enum TexCoordID {
 	TEXCOORD5 = 5,
 	TEXCOORD6 = 6,
 	TEXCOORD7 = 7,
-	NULL = 0xFF,
+	TEXCOORD_NULL = 0xFF,
 };
 
 enum TexMapID {
@@ -345,7 +345,7 @@ enum TexMapID {
 	TEXMAP5 = 5,
 	TEXMAP6 = 6,
 	TEXMAP7 = 7,
-	NULL = 0xFF,
+	TEXMAP_NULL = 0xFF,
 };
 
 enum IndTexScale {
