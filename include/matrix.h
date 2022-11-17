@@ -9,6 +9,14 @@ union Matrix2x3f
 	};
 	float values[2][3];
 };
+union Matrix2x4f
+{
+	struct {
+		float m00, m01, m02, m03;
+		float m10, m11, m12, m13;
+	};
+	float values[2][4];
+};
 
 union Matrix4x4f
 {
