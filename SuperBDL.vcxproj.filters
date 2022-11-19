@@ -27,6 +27,9 @@
     <ClCompile Include="src\bmd.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\bmt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\bmd.h">
@@ -64,6 +67,9 @@
     </ClInclude>
     <ClInclude Include="include\vtx1.h">
       <Filter>Header Files\Sections</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bmt.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
