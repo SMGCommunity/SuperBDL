@@ -7,3 +7,4 @@ x32/
 *.dll
 *.lib
 include/assimp/
+include/json-c/
