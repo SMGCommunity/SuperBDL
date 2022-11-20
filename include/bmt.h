@@ -15,7 +15,13 @@
 /// <returns>true if successful</returns>
 bool readBMT(FILE* fp, struct BMT* output);
 
+/// <summary>
+/// 
+/// </summary>
 struct J3DMaterial* getMaterial(struct BMT* bmt, const char* name);
+/// <summary>
+/// 
+/// </summary>
 struct JUTTexture* getTexture(struct BMT* bmt, const char* name);
 
 
