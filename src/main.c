@@ -23,6 +23,7 @@ int main(int argc, char **argv) {
 	bool format_forced = false;
 	bool output_bdl = true;
 	bool sm3das = false;
+	bool optimize = false; //Optimizing the model is very much a thing that we could look into doing...
 	const char *input_path = NULL;
 	const char *output_path = NULL;
 	const char *mat_path = NULL;
@@ -44,6 +45,8 @@ int main(int argc, char **argv) {
 			} else if (!strcmp(argv[i], "--sm3das")) {
 				output_bdl = true; // implies --bdl
 				sm3das = true;
+			} else if (!strcmp(argv[i], "--optimize") || !strcmp(argv[i], "-O") || !strcmp(argv[i], "-O2")) {
+				optimize = true;
 			} else if (!strcmp(argv[i], "--mat")) {
 				mat_path = argv[++i];
 			} else if (!strcmp(argv[i], "--")) {
