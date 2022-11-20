@@ -30,6 +30,12 @@
     <ClCompile Include="src\bmt.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\mat3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tex1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\bmd.h">

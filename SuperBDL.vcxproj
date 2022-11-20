@@ -119,6 +119,8 @@
     <ClCompile Include="src\bmd.c" />
     <ClCompile Include="src\bmt.c" />
     <ClCompile Include="src\main.c" />
+    <ClCompile Include="src\mat3.c" />
+    <ClCompile Include="src\tex1.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\bmd.h" />
