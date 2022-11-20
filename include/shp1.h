@@ -2,8 +2,8 @@
 #define __SHP1_H
 
 #include <stdbool.h>
-#include <bmd.h>
-#include <vector.h>
+#include "bmd.h"
+#include "vector.h"
 
 #define MAGIC_SHP1 "SHP1"
 

@@ -2,7 +2,7 @@
 #define __VTX1_H
 
 #include <stdbool.h>
-#include <bmd.h>
+#include "bmd.h"
 
 #define MAGIC_VTX1 "VTX1"
 

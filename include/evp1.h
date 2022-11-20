@@ -2,7 +2,7 @@
 #define __EVP1_H
 
 #include <stdbool.h>
-#include <bmd.h>
+#include "bmd.h"
 
 #define MAGIC_EVP1 "EVP1"
 

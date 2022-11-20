@@ -2,7 +2,7 @@
 #define __DRW1_H
 
 #include <stdbool.h>
-#include <bmd.h>
+#include "bmd.h"
 
 #define MAGIC_DRW1 "DRW1"
 

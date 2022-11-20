@@ -2,8 +2,9 @@
 #define __TEX1_H
 
 #include <stdbool.h>
-#include <bmd.h>
-#include <mat3.h>
+#include <stdio.h>
+#include "bmd.h"
+#include "mat3.h"
 
 #define MAGIC_TEX1 "TEX1"
 

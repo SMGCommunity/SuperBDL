@@ -2,7 +2,7 @@
 #define __INF1_H
 
 #include <stdbool.h>
-#include <bmd.h>
+#include "bmd.h"
 
 #define MAGIC_INF1 "INF1"
 

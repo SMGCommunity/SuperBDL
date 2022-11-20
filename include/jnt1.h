@@ -2,9 +2,9 @@
 #define __JNT1_H
 
 #include <stdbool.h>
-#include <bmd.h>
-#include <vector.h>
-#include <matrix.h>
+#include "bmd.h"
+#include "vector.h"
+#include "matrix.h"
 
 #define MAGIC_JNT1 "JNT1"
 

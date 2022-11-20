@@ -2,7 +2,7 @@
 #define __MDL3_H
 
 #include <stdbool.h>
-#include <bmd.h>
+#include "bmd.h"
 
 #define MAGIC_MDL3 "MDL3"
 

@@ -2,9 +2,10 @@
 #define __MAT3_H
 
 #include <stdbool.h>
-#include <bmd.h>
-#include <vector.h>
-#include <matrix.h>
+#include <stdio.h>
+#include "bmd.h"
+#include "vector.h"
+#include "matrix.h"
 
 #define MAGIC_MAT3 "MAT3"
 
