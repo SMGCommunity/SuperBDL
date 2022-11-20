@@ -11,10 +11,11 @@ bool writeSHP1(const struct aiScene *data);
 
 struct Shape
 {
-	DisplayFlags displayFlags;
+	enum DisplayFlags displayFlags;
 
 	float boundingRadius;
-	Vector3f boundingMin, boundingMax;
+	union Vector3f boundingMin;
+	union Vector3f boundingMax;
 };
 
 enum DisplayFlags
