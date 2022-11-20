@@ -72,7 +72,7 @@ bool texcmp(struct JUTTexture* tex1, struct JUTTexture* tex2) {
 		return false;
 
 	if (tex1->PaletteDataSize != tex2->PaletteDataSize ||
-	    !memcmp(tex1->PaletteData, tex2->PaletteData, tex1->PaletteDataSize))
+	    memcmp(tex1->PaletteData, tex2->PaletteData, tex1->PaletteDataSize))
 		return false;
 
 	return true;
