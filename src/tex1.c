@@ -1,3 +1,6 @@
+#include <stdbool.h>
+#include <stdio.h>
+
 #include "tex1.h"
 
 bool readTEX1(FILE* fp, struct JUTTexture* outputArray, unsigned int* elementCount)
@@ -7,6 +10,9 @@ bool readTEX1(FILE* fp, struct JUTTexture* outputArray, unsigned int* elementCou
 
 
 bool texcmp(struct JUTTexture* tex1, struct JUTTexture* tex2) {
+	if (tex1 == tex2)
+		return true;
+
 	if (strcmp(tex1->Name, tex2->Name))
 		return false;
 
@@ -61,10 +67,12 @@ bool texcmp(struct JUTTexture* tex1, struct JUTTexture* tex2) {
 	if (tex1->EnableEdgeLOD != tex2->EnableEdgeLOD)
 		return false;
 
-	if (tex1->ImageDataSize == tex2->ImageDataSize && !memcmp(tex1->ImageData, tex2->ImageData, tex1->ImageDataSize))
+	if (tex1->ImageDataSize != tex2->ImageDataSize ||
+	    memcmp(tex1->ImageData, tex2->ImageData, tex1->ImageDataSize))
 		return false;
 
-	if (tex1->PaletteDataSize == tex2->PaletteDataSize && !memcmp(tex1->PaletteData, tex2->PaletteData, tex1->PaletteDataSize))
+	if (tex1->PaletteDataSize != tex2->PaletteDataSize ||
+	    !memcmp(tex1->PaletteData, tex2->PaletteData, tex1->PaletteDataSize))
 		return false;
 
 	return true;
