@@ -4,8 +4,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include <mat3.h>
-#include <tex1.h>
+#include "mat3.h"
+#include "tex1.h"
+
+#define MAGIC_BMT "bmt3"
 
 /// <summary>
 /// Reads a Binary Material File
