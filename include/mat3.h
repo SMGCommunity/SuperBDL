@@ -10,7 +10,7 @@
 
 bool writeMAT3(const struct aiScene *data);
 
-int matcmp(struct J3DMaterial* A, struct J3DMaterial* B);
+bool matcmp(struct J3DMaterial* mat1, struct J3DMaterial* mat2);
 
 
 

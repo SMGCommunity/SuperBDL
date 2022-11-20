@@ -9,7 +9,7 @@
 
 bool writeTEX1(const struct aiScene *data);
 
-int texcmp(struct JUTTexture* A, struct JUTTexture* B);
+bool texcmp(struct JUTTexture* tex1, struct JUTTexture* tex2);
 
 enum JUTTransparency
 {
