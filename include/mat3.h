@@ -16,189 +16,6 @@ bool matcmp(struct J3DMaterial* mat1, struct J3DMaterial* mat2);
 
 
 
-typedef struct J3DMaterial
-{
-	/// <summary>
-	/// Name of the material. encoded in SHIFT-JIS
-	/// </summary>
-	char* Name;
-	/// <summary>
-	/// 0x01: OPA (Opaque), 0x02: EDG (TexEdge / Masked), 0x04: XLU (Translucent)
-	/// </summary>
-	unsigned char MaterialMode;
-
-	bool EnableDithering;
-	struct JUTTexture* Textures[8]; //The TEX1 section will hold the actual instances of these. However if TEX1 doesn't have a texture that's pointed to here, we'll add it to TEX1. Genius??
-	struct TextureMatrix* TextureMatricies[10];
-	union Matrix2x4f IndirectTextureMatricies[3];
-	union Vector4uc ColorMatRegs[2];
-	union Vector4uc ColorAmbRegs[2];
-	/// <summary>
-	/// KONST Colours are clamped 0 to 255.
-	/// </summary>
-	union Vector4uc ColorConstants[4];
-
-	/// <summary>
-	/// TEV Colours aren't clamped 0 to 255.
-	/// </summary>
-	union Vector4s ColorRegisters[4];
-	struct Fog* FogInfo;
-
-	//GXMaterial
-	enum GXCullMode Culling;
-
-	struct LightChannelControl* LightChannels[2];
-	struct TextureGenerator* TextureGenerators[8];
-
-	struct TextureEnvironmentStage* TEVStages[16];
-	
-	struct IndirectTextureStage* IndirectStages[4];
-	
-	struct AlphaTest* AlphaTest;
-	struct Blend* BlendInfo;
-	struct NBT* NBTScale;
-
-} Material;
-
-struct TextureMatrix
-{
-	enum TexMtxMapping Mode;
-	bool IsMaya;
-	enum TexMtxProjection Projection;
-
-	union Vector3f Center; //Z is unused
-	union Vector2f Scale;
-	float Rotation;
-	union Vector2f Translation;
-	union Matrix4x4f EffectMatrix;
-};
-
-struct LightChannelControl
-{
-	struct ColorChannelControl *Color, *Alpha;
-};
-
-struct ColorChannelControl
-{
-	bool LightingEnabled;
-	enum GXColorSource MaterialColorSource;
-	enum GXColorSource AmbientColorSource;
-	unsigned char LightMask;
-	enum GXDiffuseFunction DiffuseFunc;
-	enum GXAttenuationFunction AttenuationFunc;
-};
-
-struct TextureGenerator
-{
-	enum GXTexGenType Type;
-	enum GXTexGenSrc Source;
-	enum GXTexGenMatrix Matrix;
-	bool Normalize;
-	enum GXPostTexGenMatrix PostMatrix;
-};
-
-typedef struct TextureEnvironmentStage
-{
-	enum GXCombineColor ColorInA;
-	enum GXCombineColor ColorInB;
-	enum GXCombineColor ColorInC;
-	enum GXCombineColor ColorInD;
-	enum GXTevOp ColorOperation;
-	enum GXTevBias ColorBias;
-	enum GXTevScale ColorScale;
-	bool ColorClamp;
-	enum GXRegister ColorOutRegister;
-
-	enum GXCombineAlpha AlphaInA;
-	enum GXCombineAlpha AlphaInB;
-	enum GXCombineAlpha AlphaInC;
-	enum GXCombineAlpha AlphaInD;
-	enum GXTevOp AlphaOperation;
-	enum GXTevBias AlphaBias;
-	enum GXTevScale AlphaScale;
-	bool AlphaClamp;
-	enum GXRegister AlphaOutRegister;
-
-	//TevOrder
-	enum GXTexID TextureCoordID; //See, these two have the same values despite normally being different enums...
-	enum GXTexID TextureMapID; //So I just merged them to use a single enum. We'll see if that gives us issues later...
-	enum GXRasterizerChannelID ChannelID;
-
-	//Constant Selections
-	enum GXConstantColor ConstantColorSelection;
-	enum GXConstantAlpha ConstantAlphaSelection;
-
-	struct SwapTable* RasterizerSwapTable;
-	struct SwapTable* TextureSwapTable;
-
-	//Indirect Stage
-	struct IndirectTextureStage* IndirectStagePtr;
-	enum GXIndirectTextureFormat IndirectTexFormat;
-	enum GXIndirectTextureBias IndirectTexBias;
-	enum GXIndirectTextureAlpha IndirectTexAlpha;
-	enum GXIndirectTextureMatrixID IndirectTexMtxID;
-	enum GXIndirectTextureWrap IndirectTexWrapS;
-	enum GXIndirectTextureWrap IndirectTexWrapT;
-	bool IndirectAddPrevious;
-	bool IndirectUseOriginalLoD;
-} TEVStage;
-
-struct SwapTable
-{
-	enum GXTevColorChannel RED;
-	enum GXTevColorChannel GREEN;
-	enum GXTevColorChannel BLUE;
-	enum GXTevColorChannel ALPHA;
-};
-
-struct IndirectTextureStage
-{
-	enum GXTexID TexCoordID;
-	enum GXTexID TexMapID;
-	enum GXIndirectScale ScaleS;
-	enum GXIndirectScale ScaleT;
-};
-
-struct AlphaTest
-{
-	enum GXAlphaOp Operation;
-	enum GXCompareType CompareA; //Pixel?
-	unsigned char ReferenceA;
-	enum GXCompareType CompareB; //EFB??
-	unsigned char ReferenceB;
-};
-
-struct Blend
-{
-	bool EnableDepthTest;
-	/// Always PixelAlpha <op> EFB
-	enum GXCompareType DepthFunction;
-	bool WriteToZBuffer;
-
-	enum GXBlendMode BlendMode;
-	enum GXBlendFactor BlendSourceFactor;
-	enum GXBlendFactor BlendDestFactor;
-	enum GXLogicOp BlendLogicOperation;
-};
-
-struct Fog
-{
-	enum GXFogType Type;
-	bool AdjustEnabled;
-	unsigned short AdjustCenter;
-	float StartZ, EndZ, NearZ, FarZ;
-	union Vector4uc Color; //set to #00000000
-	unsigned short AdjustTable[10];
-};
-
-struct NBT
-{
-	///what the heck even is this?
-	unsigned char UNKNOWN;
-	union Vector3f Scale;
-};
-
-
 
 #pragma region GX_Enums
 enum TexMtxMapping
@@ -798,6 +615,193 @@ enum GXFogType
 };
 
 #pragma endregion
+
+
+
+
+typedef struct J3DMaterial
+{
+	/// <summary>
+	/// Name of the material. encoded in SHIFT-JIS
+	/// </summary>
+	char* Name;
+	/// <summary>
+	/// 0x01: OPA (Opaque), 0x02: EDG (TexEdge / Masked), 0x04: XLU (Translucent)
+	/// </summary>
+	unsigned char MaterialMode;
+
+	bool EnableDithering;
+	struct JUTTexture* Textures[8]; //The TEX1 section will hold the actual instances of these. However if TEX1 doesn't have a texture that's pointed to here, we'll add it to TEX1. Genius??
+	struct TextureMatrix* TextureMatricies[10];
+	union Matrix2x4f IndirectTextureMatricies[3];
+	union Vector4uc ColorMatRegs[2];
+	union Vector4uc ColorAmbRegs[2];
+	/// <summary>
+	/// KONST Colours are clamped 0 to 255.
+	/// </summary>
+	union Vector4uc ColorConstants[4];
+
+	/// <summary>
+	/// TEV Colours aren't clamped 0 to 255.
+	/// </summary>
+	union Vector4s ColorRegisters[4];
+	struct Fog* FogInfo;
+
+	//GXMaterial
+	enum GXCullMode Culling;
+
+	struct LightChannelControl* LightChannels[2];
+	struct TextureGenerator* TextureGenerators[8];
+
+	struct TextureEnvironmentStage* TEVStages[16];
+	
+	struct IndirectTextureStage* IndirectStages[4];
+	
+	struct AlphaTest* AlphaTest;
+	struct Blend* BlendInfo;
+	struct NBT* NBTScale;
+
+} Material;
+
+struct TextureMatrix
+{
+	enum TexMtxMapping Mode;
+	bool IsMaya;
+	enum TexMtxProjection Projection;
+
+	union Vector3f Center; //Z is unused
+	union Vector2f Scale;
+	float Rotation;
+	union Vector2f Translation;
+	union Matrix4x4f EffectMatrix;
+};
+
+struct LightChannelControl
+{
+	struct ColorChannelControl *Color, *Alpha;
+};
+
+struct ColorChannelControl
+{
+	bool LightingEnabled;
+	enum GXColorSource MaterialColorSource;
+	enum GXColorSource AmbientColorSource;
+	unsigned char LightMask;
+	enum GXDiffuseFunction DiffuseFunc;
+	enum GXAttenuationFunction AttenuationFunc;
+};
+
+struct TextureGenerator
+{
+	enum GXTexGenType Type;
+	enum GXTexGenSrc Source;
+	enum GXTexGenMatrix Matrix;
+	bool Normalize;
+	enum GXPostTexGenMatrix PostMatrix;
+};
+
+typedef struct TextureEnvironmentStage
+{
+	enum GXCombineColor ColorInA;
+	enum GXCombineColor ColorInB;
+	enum GXCombineColor ColorInC;
+	enum GXCombineColor ColorInD;
+	enum GXTevOp ColorOperation;
+	enum GXTevBias ColorBias;
+	enum GXTevScale ColorScale;
+	bool ColorClamp;
+	enum GXRegister ColorOutRegister;
+
+	enum GXCombineAlpha AlphaInA;
+	enum GXCombineAlpha AlphaInB;
+	enum GXCombineAlpha AlphaInC;
+	enum GXCombineAlpha AlphaInD;
+	enum GXTevOp AlphaOperation;
+	enum GXTevBias AlphaBias;
+	enum GXTevScale AlphaScale;
+	bool AlphaClamp;
+	enum GXRegister AlphaOutRegister;
+
+	//TevOrder
+	enum GXTexID TextureCoordID; //See, these two have the same values despite normally being different enums...
+	enum GXTexID TextureMapID; //So I just merged them to use a single enum. We'll see if that gives us issues later...
+	enum GXRasterizerChannelID ChannelID;
+
+	//Constant Selections
+	enum GXConstantColor ConstantColorSelection;
+	enum GXConstantAlpha ConstantAlphaSelection;
+
+	struct SwapTable* RasterizerSwapTable;
+	struct SwapTable* TextureSwapTable;
+
+	//Indirect Stage
+	struct IndirectTextureStage* IndirectStagePtr;
+	enum GXIndirectTextureFormat IndirectTexFormat;
+	enum GXIndirectTextureBias IndirectTexBias;
+	enum GXIndirectTextureAlpha IndirectTexAlpha;
+	enum GXIndirectTextureMatrixID IndirectTexMtxID;
+	enum GXIndirectTextureWrap IndirectTexWrapS;
+	enum GXIndirectTextureWrap IndirectTexWrapT;
+	bool IndirectAddPrevious;
+	bool IndirectUseOriginalLoD;
+} TEVStage;
+
+struct SwapTable
+{
+	enum GXTevColorChannel RED;
+	enum GXTevColorChannel GREEN;
+	enum GXTevColorChannel BLUE;
+	enum GXTevColorChannel ALPHA;
+};
+
+struct IndirectTextureStage
+{
+	enum GXTexID TexCoordID;
+	enum GXTexID TexMapID;
+	enum GXIndirectScale ScaleS;
+	enum GXIndirectScale ScaleT;
+};
+
+struct AlphaTest
+{
+	enum GXAlphaOp Operation;
+	enum GXCompareType CompareA; //Pixel?
+	unsigned char ReferenceA;
+	enum GXCompareType CompareB; //EFB??
+	unsigned char ReferenceB;
+};
+
+struct Blend
+{
+	bool EnableDepthTest;
+	/// Always PixelAlpha <op> EFB
+	enum GXCompareType DepthFunction;
+	bool WriteToZBuffer;
+
+	enum GXBlendMode BlendMode;
+	enum GXBlendFactor BlendSourceFactor;
+	enum GXBlendFactor BlendDestFactor;
+	enum GXLogicOp BlendLogicOperation;
+};
+
+struct Fog
+{
+	enum GXFogType Type;
+	bool AdjustEnabled;
+	unsigned short AdjustCenter;
+	float StartZ, EndZ, NearZ, FarZ;
+	union Vector4uc Color; //set to #00000000
+	unsigned short AdjustTable[10];
+};
+
+struct NBT
+{
+	///what the heck even is this?
+	unsigned char UNKNOWN;
+	union Vector3f Scale;
+};
+
+
 
 
 

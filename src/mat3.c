@@ -1,6 +1,3 @@
-#include <stdbool.h>
-#include <stdio.h>
-
 #include "mat3.h"
 
 bool readMAT3(FILE* fp, struct J3DMaterial* outputArray, unsigned int* elementCount)
