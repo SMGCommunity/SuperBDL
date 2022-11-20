@@ -8,7 +8,7 @@
 
 #define MAGIC_TEX1 "TEX1"
 
-bool readTEX1(FILE* fp, struct JUTTexture* outputArray, unsigned int elementCount);
+bool readTEX1(FILE* fp, struct JUTTexture* outputArray, unsigned int* elementCount);
 bool writeTEX1(const struct aiScene *data);
 
 bool texcmp(struct JUTTexture* tex1, struct JUTTexture* tex2);

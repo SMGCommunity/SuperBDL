@@ -1,5 +1,11 @@
 #include "tex1.h"
 
+bool readTEX1(FILE* fp, struct JUTTexture* outputArray, unsigned int* elementCount)
+{
+	return false;
+}
+
+
 bool texcmp(struct JUTTexture* tex1, struct JUTTexture* tex2) {
 	if (strcmp(tex1->Name, tex2->Name))
 		return false;

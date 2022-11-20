@@ -9,7 +9,7 @@
 
 #define MAGIC_MAT3 "MAT3"
 
-bool readMAT3(FILE* fp, struct J3DMaterial* outputArray, unsigned int elementCount);
+bool readMAT3(FILE* fp, struct J3DMaterial* outputArray, unsigned int* elementCount);
 bool writeMAT3(const struct aiScene *data);
 
 bool matcmp(struct J3DMaterial* mat1, struct J3DMaterial* mat2);
