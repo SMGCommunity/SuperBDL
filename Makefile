@@ -1,5 +1,5 @@
 CC ?= $(CROSS_COMPILE)gcc
-CFLAGS ?= -Wall -O2 -flto
+CFLAGS ?= -Wall -Wno-unknown-pragmas -O2 -flto
 
 SOURCE_DIR = src
 INCLUDE_DIR = include
