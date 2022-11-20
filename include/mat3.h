@@ -9,6 +9,7 @@
 
 #define MAGIC_MAT3 "MAT3"
 
+bool readMAT3(FILE* fp, struct J3DMaterial* outputArray, unsigned int elementCount);
 bool writeMAT3(const struct aiScene *data);
 
 bool matcmp(struct J3DMaterial* mat1, struct J3DMaterial* mat2);
@@ -79,12 +80,12 @@ struct LightChannelControl
 
 struct ColorChannelControl
 {
-	bool LightingEnabled = false;
-	enum GXColorSource MaterialColorSource = SOURCE_VERTEX;
-	enum GXColorSource AmbientColorSource = SOURCE_VERTEX;
-	unsigned char LightMask = 0;
-	enum GXDiffuseFunction DiffuseFunc = DIFFUSE_NONE;
-	enum GXAttenuationFunction AttenuationFunc = ATTENUATION_NONE;
+	bool LightingEnabled;
+	enum GXColorSource MaterialColorSource;
+	enum GXColorSource AmbientColorSource;
+	unsigned char LightMask;
+	enum GXDiffuseFunction DiffuseFunc;
+	enum GXAttenuationFunction AttenuationFunc;
 };
 
 struct TextureGenerator
@@ -131,24 +132,23 @@ typedef struct TextureEnvironmentStage
 	struct SwapTable* TextureSwapTable;
 
 	//Indirect Stage
-	struct IndirectTextureStage* IndirectStagePtr = NULL;
-	enum GXIndirectTextureFormat IndirectTexFormat = IND_TEXFMT_EIGHT_BIT;
-	enum GXIndirectTextureBias IndirectTexBias = IND_TEXBIAS_NONE;
-	enum GXIndirectTextureAlpha IndirectTexAlpha = IND_ALPHA_OFF;
-	enum GXIndirectTextureMatrixID IndirectTexMtxID = INDMTX_OFF;
-	enum GXIndirectTextureWrap IndirectTexWrapS = INDWRAP_OFF;
-	enum GXIndirectTextureWrap IndirectTexWrapT = INDWRAP_OFF;
-	bool IndirectAddPrevious = false;
-	bool IndirectUseOriginalLoD = false;
+	struct IndirectTextureStage* IndirectStagePtr;
+	enum GXIndirectTextureFormat IndirectTexFormat;
+	enum GXIndirectTextureBias IndirectTexBias;
+	enum GXIndirectTextureAlpha IndirectTexAlpha;
+	enum GXIndirectTextureMatrixID IndirectTexMtxID;
+	enum GXIndirectTextureWrap IndirectTexWrapS;
+	enum GXIndirectTextureWrap IndirectTexWrapT;
+	bool IndirectAddPrevious;
+	bool IndirectUseOriginalLoD;
 } TEVStage;
 
 struct SwapTable
 {
-	enum GXTevColorChannel
-		RED = CHANNEL_RED,
-		GREEN = CHANNEL_GREEN,
-		BLUE = CHANNEL_BLUE,
-		ALPHA = CHANNEL_ALPHA;
+	enum GXTevColorChannel RED;
+	enum GXTevColorChannel GREEN;
+	enum GXTevColorChannel BLUE;
+	enum GXTevColorChannel ALPHA;
 };
 
 struct IndirectTextureStage
@@ -183,8 +183,8 @@ struct Blend
 
 struct Fog
 {
-	enum GXFogType Type = FOGTYPE_NONE;
-	bool AdjustEnabled = false;
+	enum GXFogType Type;
+	bool AdjustEnabled;
 	unsigned short AdjustCenter;
 	float StartZ, EndZ, NearZ, FarZ;
 	union Vector4uc Color; //set to #00000000
