@@ -8,6 +8,7 @@
 
 #define MAGIC_TEX1 "TEX1"
 
+bool readTEX1(FILE* fp, struct JUTTexture* outputArray, unsigned int elementCount);
 bool writeTEX1(const struct aiScene *data);
 
 bool texcmp(struct JUTTexture* tex1, struct JUTTexture* tex2);
@@ -70,9 +71,10 @@ enum GXPaletteFormats
 struct JUTTexture
 {
 	char* Name;
-	enum JUTTransparency AlphaSetting = JUT_OPAQUE;
-	bool ClampLODBias = true, EnableMipmaps = true;
-	unsigned char MaxAnisotropy = 0;
+	enum JUTTransparency AlphaSetting ;
+	bool ClampLODBias;
+	bool EnableMipmaps;
+	unsigned char MaxAnisotropy;
 
 	//GXTexture
 	enum GXImageFormats Format;
@@ -89,7 +91,9 @@ struct JUTTexture
 	unsigned short Width, Height; //Every wii format uses 16 bit values for these.
 	unsigned char ImageCount;
 	void* ImageData; //Image Data. Includes mipmaps
+	unsigned int ImageDataSize;
 	void* PaletteData; //Palette Data. Optional.
+	unsigned int PaletteDataSize;
 };
 
 #endif /* __TEX1_H */
