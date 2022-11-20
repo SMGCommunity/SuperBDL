@@ -118,6 +118,7 @@
   <ItemGroup>
     <ClCompile Include="src\bmd.c" />
     <ClCompile Include="src\bmt.c" />
+    <ClCompile Include="src\endianio.c" />
     <ClCompile Include="src\main.c" />
     <ClCompile Include="src\mat3.c" />
     <ClCompile Include="src\tex1.c" />
@@ -126,6 +127,7 @@
     <ClInclude Include="include\bmd.h" />
     <ClInclude Include="include\bmt.h" />
     <ClInclude Include="include\drw1.h" />
+    <ClInclude Include="include\endianio.h" />
     <ClInclude Include="include\evp1.h" />
     <ClInclude Include="include\inf1.h" />
     <ClInclude Include="include\jnt1.h" />

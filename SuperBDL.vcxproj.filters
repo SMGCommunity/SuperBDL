@@ -36,6 +36,9 @@
     <ClCompile Include="src\tex1.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\endianio.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\bmd.h">
@@ -75,6 +78,9 @@
       <Filter>Header Files\Sections</Filter>
     </ClInclude>
     <ClInclude Include="include\bmt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\endianio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
