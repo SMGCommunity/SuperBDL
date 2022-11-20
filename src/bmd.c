@@ -9,9 +9,11 @@ unsigned int getChunkPosition(FILE* fp, const char* magic)
 	while (!feof(fp))
 	{
 		//Read Chunk Magic
-		fseek(fp, 4, SEEK_CUR);
-
-		//if FileMagic == magic return ftell?
+		if (isMagicMatch(fp, magic))
+		{
+			fseek(fp, -4, SEEK_CUR);
+			return ftell(fp);
+		}
 
 		unsigned int ChunkSize;
 		fread(&ChunkSize, 4, 1, fp);

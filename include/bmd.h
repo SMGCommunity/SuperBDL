@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #include <assimp/scene.h>
+#include "endianio.h"
 
 #define MAGIC_J3D "J3D2"
 #define MAGIC_BDL "bdl4"
