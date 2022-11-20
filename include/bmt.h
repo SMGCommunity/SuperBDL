@@ -9,6 +9,20 @@
 
 #define MAGIC_BMT "bmt3"
 
+struct BMT
+{
+	/// <summary>
+	/// An array of materials inside this BMT
+	/// </summary>
+	struct J3DMaterial* Materials;
+	unsigned int MaterialCount;
+	/// <summary>
+	/// An array of textures inside this BMT
+	/// </summary>
+	struct JUTTexture* Textures;
+	unsigned int TextureCount;
+};
+
 /// <summary>
 /// Reads a Binary Material File
 /// </summary>
@@ -27,20 +41,5 @@ struct J3DMaterial* getMaterial(struct BMT* bmt, const char* name);
 /// </summary>
 /// <returns>NULL if the texture is not found</returns>
 struct JUTTexture* getTexture(struct BMT* bmt, const char* name);
-
-
-struct BMT
-{
-	/// <summary>
-	/// An array of materials inside this BMT
-	/// </summary>
-	struct J3DMaterial* Materials;
-	unsigned int MaterialCount;
-	/// <summary>
-	/// An array of textures inside this BMT
-	/// </summary>
-	struct JUTTexture* Textures;
-	unsigned int TextureCount;
-};
 
 #endif /* __BMT_H */
