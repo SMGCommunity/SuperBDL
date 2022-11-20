@@ -47,9 +47,11 @@ union Vector4s
 	short values[4];
 };
 
-void writeVector(Vector2f vec);
-void writeVector(Vector3f vec);
-void writeVector(Vector3s vec);
-void writeVector(Vector4f vec);
+void writeVector2f(union Vector2f vec);
+void writeVector3f(union Vector3f vec);
+void writeVector3s(union Vector3s vec);
+void writeVector4f(union Vector4f vec);
+void writeVector4uc(union Vector4uc vec);
+void writeVector4s(union Vector4s vec);
 
 #endif /* __VECTOR_H */

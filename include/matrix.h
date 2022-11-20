@@ -29,6 +29,8 @@ union Matrix4x4f
 	float values[4][4];
 };
 
-void writeMatrix(Matrix4x4f matrix);
+void writeMatrix2x3f(union Matrix2x3f matrix);
+void writeMatrix2x4f(union Matrix2x4f matrix);
+void writeMatrix4x4f(union Matrix4x4f matrix);
 
 #endif /* __MATRIX_H */
