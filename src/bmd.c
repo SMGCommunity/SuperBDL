@@ -1,3 +1,7 @@
+#include <stdbool.h>
+#include <stdio.h>
+
+#include "endianio.h"
 #include "bmd.h"
 
 unsigned int getChunkPosition(FILE* fp, const char* magic)
@@ -17,7 +21,7 @@ unsigned int getChunkPosition(FILE* fp, const char* magic)
 
 		unsigned int ChunkSize;
 		fread(&ChunkSize, 4, 1, fp);
-		ChunkSize = _byteswap_ulong(ChunkSize);
+		ChunkSize = be32toh(ChunkSize);
 		fseek(fp, ChunkSize-0x08, SEEK_CUR); //minus 0x08 because we read 8 bytes from the current header
 	}
 
