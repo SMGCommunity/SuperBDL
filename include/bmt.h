@@ -7,6 +7,12 @@
 #include <mat3.h>
 #include <tex1.h>
 
+/// <summary>
+/// Reads a Binary Material File
+/// </summary>
+/// <param name="fp">- File pointer</param>
+/// <param name="output">- Destination <see cref="struct BMT"/> pointer</param>
+/// <returns>true if successful</returns>
 bool readBMT(FILE* fp, struct BMT* output);
 
 struct J3DMaterial* getMaterial(struct BMT* bmt, const char* name);
