@@ -15,7 +15,9 @@
 
 #include "bmd.h"
 
-void show_help(void) {
+#define VERSION "1.0"
+
+static void show_help(void) {
 	puts("placeholder help text");
 }
 
@@ -34,7 +36,10 @@ int main(int argc, char **argv) {
 	// there's a nice POSIX function for this but it's not available on Windows
 	for (int i = 1; i < argc; ++i) {
 		if (parsing_args) {
-			if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
+			if (!strcmp(argv[i], "--version") || !strcmp(argv[i], "-v")) {
+				puts("SuperBDL " VERSION);
+				return 0;
+			} else if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
 				show_help();
 				return 0;
 			} else if (!strcmp(argv[i], "--bmd") || !strcmp(argv[i], "-b")) {
