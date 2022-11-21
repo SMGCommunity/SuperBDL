@@ -27,6 +27,7 @@ int main(int argc, char **argv) {
 	const char *input_path = NULL;
 	const char *output_path = NULL;
 	const char *mat_path = NULL;
+	const char *tex_path = NULL;
 
 	bool parsing_args = true;
 
@@ -47,8 +48,10 @@ int main(int argc, char **argv) {
 				sm3das = true;
 			} else if (!strcmp(argv[i], "--optimize") || !strcmp(argv[i], "-O") || !strcmp(argv[i], "-O2")) {
 				optimize = true;
-			} else if (!strcmp(argv[i], "--mat")) {
+			} else if (!strcmp(argv[i], "--mat") || !strcmp(argv[i], "-m")) {
 				mat_path = argv[++i];
+			} else if (!strcmp(argv[i], "--tex") || !strcmp(argv[i], "-t")) {
+				tex_path = argv[++i];
 			} else if (!strcmp(argv[i], "--")) {
 				parsing_args = false;
 			} else if (argv[i][0] == '-') {

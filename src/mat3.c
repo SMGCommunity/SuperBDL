@@ -76,7 +76,7 @@ bool matcmp(struct J3DMaterial* mat1, struct J3DMaterial* mat2) {
 	}
 
 	for (int i = 0; i < 8; ++i) {
-		if (memcmp(mat1->TextureGenerators[i], mat1->TextureGenerators[i],
+		if (memcmp(mat1->TextureGenerators[i], mat2->TextureGenerators[i],
 		           sizeof (struct TextureGenerator)))
 			return false;
 	}
