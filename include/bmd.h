@@ -19,7 +19,7 @@ enum J3DImportOptimizations
 	/// </summary>
 	OPTIMIZE_NONE = 0b00000000000000000000000000000000,
 	/// <summary>
-	/// [FILESIZE]<para/>Optimize the geometry into Triangle Strips/Triangle Fans.
+	/// [PERFORMANCE &amp; FILESIZE]<para/>Optimize the geometry into Triangle Strips/Triangle Fans.
 	/// </summary>
 	OPTIMIZE_TRIANGLES	= 0b00000000000000000000000000000001,
 	/// <summary>
@@ -29,7 +29,7 @@ enum J3DImportOptimizations
 	/// <summary>
 	/// [FILESIZE]<para/>Optimize remap tables (EXPERIMENTAL) Basically this means that if there are two identical sets of data we can store only 1 and use the Remap table to tell the game to use it twice... I THINK that's how that works...<para/> <para/>[JNT, SHP, MAT x2]
 	/// </summary>
-	OPTIMIZE_DUP_REMAP	= 0b00000000000000000000000000000100,
+	OPTIMIZE_REMAP	= 0b00000000000000000000000000000100,
 	/// <summary>
 	/// [FILESIZE]<para/>Optimizes duplicate material data into storing one copy only. (in regards to the individual material blocks)
 	/// </summary>
@@ -56,7 +56,9 @@ enum J3DImportOptimizations
 	OPTIMIZE_MATERIAL	= OPTIMIZE_MATDATA | OPTIMIZE_TEVSTAGE | OPTIMIZE_BLENDING,
 	OPTIMIZE_TEXTURE	= OPTIMIZE_TEX_IMG | OPTIMIZE_TEX_PAL,
 
-	OPTIMIZE_ALL = OPTIMIZE_GEOMETRY | OPTIMIZE_MATERIAL | OPTIMIZE_TEXTURE | OPTIMIZE_DUP_REMAP
+	OPTIMIZE_SIZE		= OPTIMIZE_GEOMETRY | OPTIMIZE_TEXTURE | OPTIMIZE_REMAP | OPTIMIZE_MATDATA,
+	OPTIMIZE_SPEED		= OPTIMIZE_TRIANGLES | OPTIMIZE_TEVSTAGE | OPTIMIZE_BLENDING,
+	OPTIMIZE_ALL		= OPTIMIZE_TRIANGLES | OPTIMIZE_DATATYPES | OPTIMIZE_MATDATA | OPTIMIZE_TEVSTAGE | OPTIMIZE_BLENDING | OPTIMIZE_TEX_IMG | OPTIMIZE_TEX_PAL | OPTIMIZE_REMAP
 };
 
 unsigned int getChunkPosition(FILE* fp, const char* magic);
