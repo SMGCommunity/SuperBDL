@@ -29,4 +29,6 @@ int readReverseUint16(FILE* fp, unsigned short* output);
 int writeReverseUint32(FILE* fp, unsigned int* output);
 int writeReverseUint16(FILE* fp, unsigned short* output);
 
+char** readStringTable(FILE* fp);
+
 #endif /* __ENDIANIO_H */

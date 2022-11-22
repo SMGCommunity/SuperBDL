@@ -9,6 +9,8 @@
 #define MAGIC_TEX1 "TEX1"
 
 bool readTEX1(FILE* fp, struct JUTTexture* outputArray, unsigned int* elementCount);
+bool readJUTTexture(FILE* fp, struct JUTTexture* output);
+int calcImageSize(enum ImageFormats Format, unsigned short width, unsigned short height, unsigned int MipCount);
 bool writeTEX1(const struct aiScene *data);
 
 bool texcmp(struct JUTTexture* tex1, struct JUTTexture* tex2);
@@ -93,6 +95,9 @@ struct JUTTexture
 	void* ImageData; //Image Data. Includes mipmaps
 	unsigned int ImageDataSize;
 	void* PaletteData; //Palette Data. Optional.
+	/// <summary>
+	/// The number of colours in the palette. Multiply this by 2 to get the amount of RAM inside PaletteData
+	/// </summary>
 	unsigned int PaletteDataSize;
 };
 

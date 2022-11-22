@@ -4,9 +4,12 @@
 #include "mat3.h"
 #include "tex1.h"
 
-bool readMAT3(FILE* fp, struct J3DMaterial* outputArray, unsigned int* elementCount)
+bool readMAT3(FILE* fp, struct J3DMaterial** outputArray, unsigned int* elementCount)
 {
-	return false;
+	//if (!isMagicMatch(fp, MAGIC_MAT3))
+		return false;
+
+
 }
 
 bool matcmp(struct J3DMaterial* mat1, struct J3DMaterial* mat2) {
