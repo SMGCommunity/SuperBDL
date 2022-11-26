@@ -8,6 +8,9 @@
 #include <stdlib.h>
 
 #if defined(_WIN32) || defined(_WIN64)
+#define bswap_16(x) _byteswap_ushort((x))
+#define bswap_32(x) _byteswap_ulong((x))
+
 // Windows only runs on little-endian hosts
 #define	htobe16(x)	_byteswap_ushort((x))
 #define	htobe32(x)	_byteswap_ulong((x))
@@ -19,6 +22,7 @@
 #define	le16toh(x)	(x)
 #define	le32toh(x)	(x)
 #else
+#include <byteswap.h>
 #include <endian.h>
 #endif
 
