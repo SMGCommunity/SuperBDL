@@ -23,7 +23,7 @@ bool readBMT(FILE* fp, struct BMT* output)
 	if (MAT3 != 0)
 	{
 		fseek(fp, MAT3, SEEK_SET);
-		if (!readMAT3(fp, output->Materials, &(output->MaterialCount), &output->Textures))
+		if (!readMAT3(fp, output->Materials, &(output->MaterialCount), output->Textures))
 		{
 			return false; //Is this really it for Error handling?
 		}
@@ -34,11 +34,10 @@ bool readBMT(FILE* fp, struct BMT* output)
 
 struct J3DMaterial* getMaterial(struct BMT* bmt, const char* name)
 {
-	struct J3DMaterial* ptr = bmt->Materials;
 	for (size_t i = 0; i < bmt->MaterialCount; i++)
 	{
-		if (!strcmp(name, ptr->Name))
-			return ptr;
+		if (!strcmp(name, bmt->Materials[i]->Name))
+			return bmt->Materials[i];
 	}
 
 	return NULL;
@@ -46,11 +45,10 @@ struct J3DMaterial* getMaterial(struct BMT* bmt, const char* name)
 
 struct JUTTexture* getTexture(struct BMT* bmt, const char* name)
 {
-	struct JUTTexture* ptr = bmt->Textures;
 	for (size_t i = 0; i < bmt->TextureCount; i++)
 	{
-		if (!strcmp(name, ptr->Name))
-			return ptr;
+		if (!strcmp(name, bmt->Textures[i]->Name))
+			return bmt->Textures[i];
 	}
 
 	return NULL;

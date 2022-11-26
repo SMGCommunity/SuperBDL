@@ -23,7 +23,7 @@ bool readTEX1(FILE* fp, struct JUTTexture** outputArray, unsigned int* elementCo
 	fseek(fp, chunkStart + stringTableOffset, SEEK_SET);
 	char** stringTable = readStringTable(fp);
 
-	outputArray = calloc((texCount + 1), sizeof(struct JUTTexture*));
+	outputArray = calloc((size_t)(texCount + 1), sizeof(struct JUTTexture*));
 	if (outputArray == NULL)
 		return false;
 
@@ -39,6 +39,7 @@ bool readTEX1(FILE* fp, struct JUTTexture** outputArray, unsigned int* elementCo
 		outputArray[i] = currenttex;
 	}
 	free(stringTable);
+	return true;
 }
 
 bool readJUTTexture(FILE* fp, struct JUTTexture* output)
@@ -47,22 +48,22 @@ bool readJUTTexture(FILE* fp, struct JUTTexture* output)
 	long startPosition = ftell(fp);
 	fread_e(&(output->Format), 1, 1, fp);
 	fread_e(&(output->AlphaSetting), 1, 1, fp);
-	readReverseUint16(fp, &output->Width);
-	readReverseUint16(fp, &output->Height);
+	fread_e(&output->Width, 2, 1, fp);
+	fread_e(&output->Height, 2, 1, fp);
 	fread_e(&(output->WrapS), 1, 1, fp);
 	fread_e(&(output->WrapT), 1, 1, fp);
 	bool UsePalettes;
 	fread_e(&UsePalettes, 1, 1, fp);
 	fread_e(&(output->PaletteFormat), 1, 1, fp);
-	readReverseUint16(fp, &output->PaletteDataSize);
-	readReverseUint32(fp, &PaletteDataPos);
+	fread_e(&output->PaletteDataSize, 2, 1, fp);
+	fread_e(&PaletteDataPos, 4, 1, fp);
 	fread_e(&output->EnableMipmaps, 1, 1, fp);
 	fread_e(&output->EnableEdgeLOD, 1, 1, fp);
 	fread_e(&output->ClampLODBias, 1, 1, fp);
 	fread_e(&output->MaxAnisotropy, 1, 1, fp);
 	fread_e(&output->MinificationFilter, 1, 1, fp);
 	fread_e(&output->MagnificationFilter, 1, 1, fp);
-	unsigned char minlod, maxlod, lodbias;
+	unsigned char minlod = 0, maxlod = 0, lodbias = 0;
 	fread_e(&minlod, 1, 1, fp);
 	fread_e(&maxlod, 1, 1, fp);
 	output->MinLOD = minlod / 8.f;
@@ -71,9 +72,9 @@ bool readJUTTexture(FILE* fp, struct JUTTexture* output)
 	if (output->ImageCount == 0)
 		output->ImageCount = 1;
 	fseek(fp, 1, SEEK_CUR); //skip reserved
-	readReverseUint16(fp, &lodbias);
+	fread_e(&lodbias, 2, 1, fp);
 	output->LODBias = lodbias / 100.f;
-	readReverseUint32(fp, &ImageDataPos);
+	fread_e(&ImageDataPos, 4, 1, fp);
 
 	if (UsePalettes)
 	{
@@ -88,9 +89,9 @@ bool readJUTTexture(FILE* fp, struct JUTTexture* output)
 	output->ImageData = calloc(imageDataSize, 1);
 	if (output->ImageData == NULL)
 		return false;
-	int read = fread_e(output->ImageData, sizeof(char), imageDataSize, fp);
+	size_t read = fread_e(output->ImageData, sizeof(char), imageDataSize, fp);
 
-	return true;
+	return read == imageDataSize;
 }
 
 int calcImageSize(enum ImageFormats Format, unsigned short width, unsigned short height, unsigned int MipCount)
@@ -144,8 +145,10 @@ int calcImageSize(enum ImageFormats Format, unsigned short width, unsigned short
 	{
 		float f1 = ((float)width + (float)(width % BlockWidth)) / (float)BlockWidth;
 		float f2 = ((float)height + (float)(height % BlockHeight)) / (float)BlockHeight;
+#pragma warning(disable:4244) //Disable the "Possible loss of Data" error, since loss of data is exactly what we want
 		float BlockCountX = (int)f1;
 		float BlockCountY = (int)f2;
+#pragma warning(default:4244) //Re-enable "Possible loss of Data"
 		int ByteCount = (BlockCountX * (BlockWidth * BlockHeight)) * BlockCountY;
 		if (ByteCount == 0) //There *must* be at least one block per image
 			ByteCount = BlockWidth * BlockHeight;
@@ -185,6 +188,9 @@ int calcImageSize(enum ImageFormats Format, unsigned short width, unsigned short
 bool texcmp(struct JUTTexture* tex1, struct JUTTexture* tex2) {
 	if (tex1 == tex2)
 		return true;
+
+	if (tex1 == NULL || tex2 == NULL)
+		return false;
 
 	if (strcmp(tex1->Name, tex2->Name))
 		return false;

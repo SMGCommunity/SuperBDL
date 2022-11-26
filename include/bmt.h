@@ -14,12 +14,12 @@ struct BMT
 	/// <summary>
 	/// An array of materials inside this BMT
 	/// </summary>
-	struct J3DMaterial* Materials;
+	struct J3DMaterial** Materials;
 	unsigned int MaterialCount;
 	/// <summary>
 	/// An array of textures inside this BMT
 	/// </summary>
-	struct JUTTexture* Textures;
+	struct JUTTexture** Textures;
 	unsigned int TextureCount;
 };
 

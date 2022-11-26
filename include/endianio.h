@@ -27,6 +27,11 @@
 #endif
 
 #define MAX_STRING_ALLOCATION 256
+#define RETURN_VOID_IF_NULL(var) if((var) == NULL) return;
+#define RETURN_NULL_IF_NULL(var) if((var) == NULL) return NULL;
+#define RETURN_FALSE_IF_NULL(var) if((var) == NULL) return false;
+#define RETURN_FALSE_IF_FALSE(var) if(!(var)) return false;
+#define RETURN_FALSE_IF_FAIL(func, required) if((func) != (required)) return false;
 
 bool isMagicMatch(FILE* fp, const char* target);
 
@@ -37,6 +42,7 @@ int writeReverseUint16(FILE* fp, unsigned short* output);
 
 char** readStringTable(FILE* fp);
 
-int fread_e(void* _Buffer, size_t ElementSize, size_t ElementCount, FILE* _Stream);
+size_t fread_e(void* _Buffer, size_t ElementSize, size_t ElementCount, FILE* _Stream);
+size_t fwrite_e(void* _Buffer, size_t ElementSize, size_t ElementCount, FILE* _Stream);
 
 #endif /* __ENDIANIO_H */

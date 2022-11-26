@@ -7,36 +7,9 @@
 bool isMagicMatch(FILE* fp, const char* target)
 {
 	int magic;
-	int size = strlen(target);
+	size_t size = strlen(target);
 	fread(&magic, size, 1, fp);
 	return memcmp(target, &magic, size) == 0;
-}
-
-int readReverseUint32(FILE* fp, unsigned int* output)
-{
-	size_t result = fread(output, 4, 1, fp);
-	*output = be32toh(*output);
-	return result;
-}
-int readReverseUint16(FILE* fp, unsigned short* output)
-{
-	size_t result = fread(output, 2, 1, fp);
-	*output = be16toh(*output);
-	return result;
-}
-int writeReverseUint32(FILE* fp, unsigned int* output)
-{
-	unsigned int v = *output;
-	v = htobe32(v);
-	size_t result = fwrite(&v, 4, 1, fp);
-	return result;
-}
-int writeReverseUint16(FILE* fp, unsigned short* output)
-{
-	unsigned short v = *output;
-	v = htobe16(v);
-	size_t result = fwrite(&v, 2, 1, fp);
-	return result;
 }
 
 char** readStringTable(FILE* fp)
@@ -44,7 +17,7 @@ char** readStringTable(FILE* fp)
 	long tableStart = ftell(fp);
 	unsigned short stringCount;
 	fread_e(&stringCount, 2, 1, fp);
-	char** string_array = calloc((stringCount+1), sizeof(char*));
+	char** string_array = calloc((size_t)(stringCount+1), sizeof(char*));
 	fseek(fp, 2, SEEK_CUR);
 
 	char** arrayptr = string_array;
@@ -64,40 +37,57 @@ char** readStringTable(FILE* fp)
 	return string_array;
 }
 
-unsigned short leswap16(unsigned short x)
+unsigned short LE16H(unsigned short x)
 {
 	return le16toh(x);
 }
-unsigned int leswap32(unsigned int x)
+unsigned int LE32H(unsigned int x)
 {
 	return le32toh(x);
 }
-unsigned short beswap16(unsigned short x)
+unsigned short BE16H(unsigned short x)
 {
 	return be16toh(x);
 }
-unsigned int beswap32(unsigned int x)
+unsigned int BE32H(unsigned int x)
 {
 	return be32toh(x);
 }
 
-int fread_e(void* _Buffer, size_t ElementSize, size_t ElementCount, FILE* _Stream)
+unsigned short H16LE(unsigned short x)
+{
+	return htole16(x);
+}
+unsigned int H32LE(unsigned int x)
+{
+	return htole32(x);
+}
+unsigned short H16BE(unsigned short x)
+{
+	return htobe16(x);
+}
+unsigned int H32BE(unsigned int x)
+{
+	return htobe32(x);
+}
+
+size_t fread_e(void* _Buffer, size_t ElementSize, size_t ElementCount, FILE* _Stream)
 {
 	if (ElementSize == 1)
-		return fread(_Buffer, ElementSize, ElementCount, _Stream);
+		goto Normal;
 
-	int Counter = 0;
+	size_t Counter = 0;
 	unsigned short (*en16toh_ptr)(unsigned short);
-	unsigned short (*en32toh_ptr)(unsigned short);
+	unsigned int (*en32toh_ptr)(unsigned int);
 	if (false)
 	{
-		en16toh_ptr = &leswap16;
-		en32toh_ptr = &leswap32;
+		en16toh_ptr = &LE16H;
+		en32toh_ptr = &LE32H;
 	}
 	else
 	{
-		en16toh_ptr = &beswap16;
-		en32toh_ptr = &beswap32;
+		en16toh_ptr = &BE16H;
+		en32toh_ptr = &BE32H;
 	}
 
 	if (ElementSize == 2)
@@ -121,4 +111,55 @@ int fread_e(void* _Buffer, size_t ElementSize, size_t ElementCount, FILE* _Strea
 		}
 		return Counter;
 	}
+
+Normal:
+	return fread(_Buffer, ElementSize, ElementCount, _Stream);
+}
+
+size_t fwrite_e(void* _Buffer, size_t ElementSize, size_t ElementCount, FILE* _Stream)
+{
+	if (ElementSize == 1)
+		goto Normal; //Optimization since Bytes aren't swapped
+
+	unsigned short (*func16_ptr)(unsigned short);
+	unsigned int (*func32_ptr)(unsigned int);
+	if (false)
+	{
+		func16_ptr = &H16LE;
+		func32_ptr = &H32LE;
+	}
+	else
+	{
+		func16_ptr = &H16BE;
+		func32_ptr = &H32BE;
+	}
+
+	if (ElementSize == 2)
+	{
+		unsigned short* ptr = calloc(ElementCount, ElementSize);
+		if (ptr == NULL)
+			return -1;
+		memcpy(ptr, _Buffer, ElementCount * ElementSize);
+		for (size_t i = 0; i < ElementCount; i++)
+		{
+			ptr[i] = func16_ptr(ptr[i]);
+		}
+		return fwrite(ptr, ElementSize, ElementCount, _Stream);
+	}
+
+	if (ElementSize == 4)
+	{
+		unsigned int* ptr = calloc(ElementCount, ElementSize);
+		if (ptr == NULL)
+			return -1;
+		memcpy(ptr, _Buffer, ElementCount * ElementSize);
+		for (size_t i = 0; i < ElementCount; i++)
+		{
+			ptr[i] = func32_ptr(ptr[i]);
+		}
+		return fwrite(ptr, ElementSize, ElementCount, _Stream);
+	}
+
+	Normal:
+	return fwrite(_Buffer, ElementSize, ElementCount, _Stream);
 }

@@ -610,9 +610,7 @@ enum GXFogType
 
 #pragma endregion
 
-
-
-
+#pragma region Structs
 typedef struct J3DMaterial
 {
 	/// <summary>
@@ -648,9 +646,9 @@ typedef struct J3DMaterial
 	struct TextureGenerator* TextureGenerators[8];
 
 	struct TextureEnvironmentStage* TEVStages[16];
-	
+
 	struct IndirectTextureStage* IndirectStages[4];
-	
+
 	struct AlphaTest* AlphaTest;
 	struct Blend* BlendInfo;
 	struct NBT* NBTScale;
@@ -672,7 +670,7 @@ struct TextureMatrix
 
 struct LightChannelControl
 {
-	struct ColorChannelControl *Color, *Alpha;
+	struct ColorChannelControl* Color, * Alpha;
 };
 
 struct ColorChannelControl
@@ -794,11 +792,16 @@ struct NBT
 	unsigned char UNKNOWN;
 	union Vector3f Scale;
 };
+#pragma endregion
 
 bool readMAT3(FILE* fp, struct J3DMaterial** outputArray, unsigned int* elementCount, struct JUTTexture** textureArray);
 bool readFromTable(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _Stream, long ChunkStart, long TableOffset);
+bool readFromTableWithFunc(void* _Buffer, size_t IndexSize, size_t ElementSize, bool (*func_ptr)(void*, FILE*), FILE* _Stream, long ChunkStart, long TableOffset);
+bool readColorChannel(void* _Buffer, FILE* fp);
 bool writeMAT3(const struct aiScene *data);
 
 bool matcmp(struct J3DMaterial* mat1, struct J3DMaterial* mat2);
+
+void freemat(struct J3DMaterial* mat);
 
 #endif /* __MAT3_H */
