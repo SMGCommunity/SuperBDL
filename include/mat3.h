@@ -9,6 +9,7 @@
 #include "matrix.h"
 
 #define MAGIC_MAT3 "MAT3"
+#define MATERIAL_ENTRY_SIZE 0x014C
 
 #pragma region GX_Enums
 enum TexMtxMapping
@@ -794,7 +795,8 @@ struct NBT
 	union Vector3f Scale;
 };
 
-bool readMAT3(FILE* fp, struct J3DMaterial** outputArray, unsigned int* elementCount);
+bool readMAT3(FILE* fp, struct J3DMaterial** outputArray, unsigned int* elementCount, struct JUTTexture** textureArray);
+bool readFromTable(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _Stream, long ChunkStart, long TableOffset);
 bool writeMAT3(const struct aiScene *data);
 
 bool matcmp(struct J3DMaterial* mat1, struct J3DMaterial* mat2);

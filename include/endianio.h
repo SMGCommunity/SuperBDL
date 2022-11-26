@@ -22,6 +22,8 @@
 #include <endian.h>
 #endif
 
+#define MAX_STRING_ALLOCATION 256
+
 bool isMagicMatch(FILE* fp, const char* target);
 
 int readReverseUint32(FILE* fp, unsigned int* output);
@@ -30,5 +32,7 @@ int writeReverseUint32(FILE* fp, unsigned int* output);
 int writeReverseUint16(FILE* fp, unsigned short* output);
 
 char** readStringTable(FILE* fp);
+
+int fread_e(void* _Buffer, size_t ElementSize, size_t ElementCount, FILE* _Stream);
 
 #endif /* __ENDIANIO_H */

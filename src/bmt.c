@@ -12,18 +12,18 @@ bool readBMT(FILE* fp, struct BMT* output)
 	output->MaterialCount = 0;
 	output->TextureCount = 0;
 
-	if (MAT3 != 0)
-	{
-		fseek(fp, MAT3, SEEK_SET);
-		if (!readMAT3(fp, output->Materials, &(output->MaterialCount)))
-		{
-			return false; //Is this really it for Error handling?
-		}
-	}
 	if (TEX1 != 0)
 	{
 		fseek(fp, TEX1, SEEK_SET);
 		if (!readTEX1(fp, output->Textures, &(output->TextureCount)))
+		{
+			return false; //Is this really it for Error handling?
+		}
+	}
+	if (MAT3 != 0)
+	{
+		fseek(fp, MAT3, SEEK_SET);
+		if (!readMAT3(fp, output->Materials, &(output->MaterialCount), &output->Textures))
 		{
 			return false; //Is this really it for Error handling?
 		}

@@ -4,12 +4,143 @@
 #include "mat3.h"
 #include "tex1.h"
 
-bool readMAT3(FILE* fp, struct J3DMaterial** outputArray, unsigned int* elementCount)
+bool readMAT3(FILE* fp, struct J3DMaterial** outputArray, unsigned int* elementCount, struct JUTTexture** textureArray)
 {
-	//if (!isMagicMatch(fp, MAGIC_MAT3))
+	long chunkStart = ftell(fp);
+	if (!isMagicMatch(fp, MAGIC_MAT3))
+		return false;
+	fseek(fp, 4, SEEK_CUR); //Skip Chunk Size
+
+	unsigned short elements;
+	fread_e(&elements, 2, 1, fp); //Read Material count
+	*elementCount = elements; //Set element count output
+	fseek(fp, 2, SEEK_CUR); //Skip padding
+
+	unsigned int dataOffset, remapTableOffset, stringTableOffset;
+	fread_e(&dataOffset, 4, 1, fp); //Offset to BTI headers
+	fread_e(&remapTableOffset, 4, 1, fp); //Offset to the remap table
+	fread_e(&stringTableOffset, 4, 1, fp); //Offset to names
+
+	unsigned int IndTexInfoOffset,
+		CullModeInfoOffset,
+		MaterialColorTableOffset,
+		ColorChannelCountTableOffset,
+		ColorChannelTableOffset,
+		AmbientColorTableOffset,
+		LightInfoOffset,
+		TexGenCountTable,
+		TexGenTableOffset,
+		PostTexGenTableOffset,
+		TexMtxTableOffset,
+		PostTexMtxTableOffset,
+		TextureRemapTableOffset,
+		TevOrderTableOffset,
+		ColorRegisterTableOffset,
+		ColorConstantTableOffset,
+		TevStageCountTableOffset,
+		TevStageTableOffset,
+		TevSwapModeInfoOffset,
+		TevSwapModeTableOffset,
+		FogInfoTableOffset,
+		AlphaTestTableOffset,
+		BlendModeTableOffset,
+		ZModeTableOffset,
+		ZCompareOffset,
+		DitherInfoOffset,
+		NBTScaleOffset;
+
+	fread_e(&IndTexInfoOffset, 4, 1, fp);
+	fread_e(&CullModeInfoOffset, 4, 1, fp);
+	fread_e(&MaterialColorTableOffset, 4, 1, fp);
+	fread_e(&ColorChannelCountTableOffset, 4, 1, fp);
+	fread_e(&ColorChannelTableOffset, 4, 1, fp);
+	fread_e(&AmbientColorTableOffset, 4, 1, fp);
+	fread_e(&LightInfoOffset, 4, 1, fp);
+	fread_e(&TexGenCountTable, 4, 1, fp);
+	fread_e(&TexGenTableOffset, 4, 1, fp);
+	fread_e(&PostTexGenTableOffset, 4, 1, fp);
+	fread_e(&TexMtxTableOffset, 4, 1, fp);
+	fread_e(&PostTexMtxTableOffset, 4, 1, fp);
+	fread_e(&TextureRemapTableOffset, 4, 1, fp);
+	fread_e(&TevOrderTableOffset, 4, 1, fp);
+	fread_e(&ColorRegisterTableOffset, 4, 1, fp);
+	fread_e(&ColorConstantTableOffset, 4, 1, fp);
+	fread_e(&TevStageCountTableOffset, 4, 1, fp);
+	fread_e(&TevStageTableOffset, 4, 1, fp);
+	fread_e(&TevSwapModeInfoOffset, 4, 1, fp);
+	fread_e(&TevSwapModeTableOffset, 4, 1, fp);
+	fread_e(&FogInfoTableOffset, 4, 1, fp);
+	fread_e(&AlphaTestTableOffset, 4, 1, fp);
+	fread_e(&BlendModeTableOffset, 4, 1, fp);
+	fread_e(&ZModeTableOffset, 4, 1, fp);
+	fread_e(&ZCompareOffset, 4, 1, fp);
+	fread_e(&DitherInfoOffset, 4, 1, fp);
+	fread_e(&NBTScaleOffset, 4, 1, fp);
+
+	//Handle the Remap Table first
+	fseek(fp, chunkStart + remapTableOffset, SEEK_SET);
+	unsigned short* RemapTable = calloc(*elementCount, 2);
+	if (RemapTable == NULL)
 		return false;
 
+#if RELEASE
+	fread_e(RemapTable, 2, *elementCount, fp);
+#else
+	bool isCompressed = false;
+	for (size_t i = 0; i < elementCount; i++)
+	{
+		fread_e(&RemapTable[i], 2, 1, fp);
+		if (!isCompressed && RemapTable[i] != i)
+			isCompressed = true;
+	}
+	if (isCompressed)
+	{
+		//Output to the console
+	}
+#endif
 
+	//read the string table
+	fseek(fp, chunkStart + stringTableOffset, SEEK_SET);
+	char** stringTable = readStringTable(fp);
+	
+	outputArray = calloc((size_t)(*elementCount + 1), sizeof(struct J3DMaterial*));
+	if (outputArray == NULL)
+		return false;
+
+	for (size_t i = 0; i < *elementCount; i++)
+	{
+		struct J3DMaterial* current = calloc(1, sizeof(struct J3DMaterial));
+		if (current == NULL)
+			return false;
+
+		current->Name = stringTable[i]; //Names ignore the Remap Table
+
+		fseek(fp, chunkStart + dataOffset + (RemapTable[i] * MATERIAL_ENTRY_SIZE), SEEK_SET);
+
+		fread_e(&current->MaterialMode, 1, 1, fp);
+		readFromTable(&current->Culling, 1, 4, fp, chunkStart, CullModeInfoOffset);
+	}
+}
+
+bool readFromTable(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _Stream, long ChunkStart, long TableOffset)
+{
+	void* Index = calloc(1, IndexSize);
+	if (Index == NULL)
+		return false;
+
+	fread_e(Index, IndexSize, 1, _Stream);
+	long pausePosition = ftell(_Stream);
+
+	if (IndexSize == 1)
+		fseek(_Stream, ChunkStart + TableOffset + (*(char*)Index) * ElementSize, SEEK_SET);
+	else if (IndexSize == 2)
+		fseek(_Stream, ChunkStart + TableOffset + (*(unsigned short*)Index) * ElementSize, SEEK_SET);
+	else if (IndexSize == 4)
+		fseek(_Stream, ChunkStart + TableOffset + (*(unsigned int*)Index) * ElementSize, SEEK_SET);
+
+	fread_e(_Buffer, ElementSize, 1, _Stream);
+	fseek(_Stream, pausePosition, SEEK_SET);
+	return true;
 }
 
 bool matcmp(struct J3DMaterial* mat1, struct J3DMaterial* mat2) {
@@ -105,3 +236,5 @@ bool matcmp(struct J3DMaterial* mat1, struct J3DMaterial* mat2) {
 
 	return true;
 }
+
+

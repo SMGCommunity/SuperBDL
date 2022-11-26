@@ -11,13 +11,13 @@ bool readTEX1(FILE* fp, struct JUTTexture** outputArray, unsigned int* elementCo
 
 	fseek(fp, 4, SEEK_CUR); //Skip Chunk Size
 	unsigned short texCount;
-	fread(&texCount, 2, 1, fp); //Read texture count
+	fread_e(&texCount, 2, 1, fp); //Read texture count
 	*elementCount = texCount; //Set element count output
 	fseek(fp, 2, SEEK_CUR); //Skip padding
 
 	unsigned int dataOffset, stringTableOffset;
-	fread(&dataOffset, 4, 1, fp); //Offset to BTI headers
-	fread(&stringTableOffset, 4, 1, fp); //Offset to names
+	fread_e(&dataOffset, 4, 1, fp); //Offset to BTI headers
+	fread_e(&stringTableOffset, 4, 1, fp); //Offset to names
 
 	//read the string table
 	fseek(fp, chunkStart + stringTableOffset, SEEK_SET);
@@ -45,29 +45,29 @@ bool readJUTTexture(FILE* fp, struct JUTTexture* output)
 {
 	unsigned int ImageDataPos, PaletteDataPos;
 	long startPosition = ftell(fp);
-	fread(&(output->Format), 1, 1, fp);
-	fread(&(output->AlphaSetting), 1, 1, fp);
+	fread_e(&(output->Format), 1, 1, fp);
+	fread_e(&(output->AlphaSetting), 1, 1, fp);
 	readReverseUint16(fp, &output->Width);
 	readReverseUint16(fp, &output->Height);
-	fread(&(output->WrapS), 1, 1, fp);
-	fread(&(output->WrapT), 1, 1, fp);
+	fread_e(&(output->WrapS), 1, 1, fp);
+	fread_e(&(output->WrapT), 1, 1, fp);
 	bool UsePalettes;
-	fread(&UsePalettes, 1, 1, fp);
-	fread(&(output->PaletteFormat), 1, 1, fp);
+	fread_e(&UsePalettes, 1, 1, fp);
+	fread_e(&(output->PaletteFormat), 1, 1, fp);
 	readReverseUint16(fp, &output->PaletteDataSize);
 	readReverseUint32(fp, &PaletteDataPos);
-	fread(&output->EnableMipmaps, 1, 1, fp);
-	fread(&output->EnableEdgeLOD, 1, 1, fp);
-	fread(&output->ClampLODBias, 1, 1, fp);
-	fread(&output->MaxAnisotropy, 1, 1, fp);
-	fread(&output->MinificationFilter, 1, 1, fp);
-	fread(&output->MagnificationFilter, 1, 1, fp);
+	fread_e(&output->EnableMipmaps, 1, 1, fp);
+	fread_e(&output->EnableEdgeLOD, 1, 1, fp);
+	fread_e(&output->ClampLODBias, 1, 1, fp);
+	fread_e(&output->MaxAnisotropy, 1, 1, fp);
+	fread_e(&output->MinificationFilter, 1, 1, fp);
+	fread_e(&output->MagnificationFilter, 1, 1, fp);
 	unsigned char minlod, maxlod, lodbias;
-	fread(&minlod, 1, 1, fp);
-	fread(&maxlod, 1, 1, fp);
+	fread_e(&minlod, 1, 1, fp);
+	fread_e(&maxlod, 1, 1, fp);
 	output->MinLOD = minlod / 8.f;
 	output->MaxLOD = maxlod / 8.f;
-	fread(&output->ImageCount, 1, 1, fp);
+	fread_e(&output->ImageCount, 1, 1, fp);
 	if (output->ImageCount == 0)
 		output->ImageCount = 1;
 	fseek(fp, 1, SEEK_CUR); //skip reserved
@@ -80,13 +80,15 @@ bool readJUTTexture(FILE* fp, struct JUTTexture* output)
 		//each colour is a short, so 2 bytes each! This is because the formats that palettes support are ALL 2 bytes big. certified bruh moment
 		fseek(fp, startPosition + PaletteDataPos, SEEK_SET);
 		output->PaletteData = calloc(output->PaletteDataSize, 2);
-		fread(&output->PaletteData, 2, output->PaletteDataSize, fp);
+		fread_e(&output->PaletteData, 2, output->PaletteDataSize, fp);
 	}
 
 	fseek(fp, startPosition + ImageDataPos, SEEK_SET);
 	int imageDataSize = calcImageSize(output->Format, output->Width, output->Height, output->ImageCount);
 	output->ImageData = calloc(imageDataSize, 1);
-	int read = fread(output->ImageData, sizeof(char), imageDataSize, fp);
+	if (output->ImageData == NULL)
+		return false;
+	int read = fread_e(output->ImageData, sizeof(char), imageDataSize, fp);
 
 	return true;
 }
