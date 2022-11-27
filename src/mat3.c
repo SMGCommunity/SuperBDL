@@ -4,7 +4,7 @@
 #include "mat3.h"
 #include "tex1.h"
 
-bool readMAT3(FILE* fp, struct J3DMaterial** outputArray, unsigned int* elementCount, struct JUTTexture** textureArray)
+bool readMAT3(FILE* fp, struct J3DMaterial*** outputArray, unsigned int* elementCount, struct JUTTexture*** textureArray)
 {
 	if (elementCount == NULL)
 		return false; //Why
@@ -36,7 +36,7 @@ bool readMAT3(FILE* fp, struct J3DMaterial** outputArray, unsigned int* elementC
 		PostTexGenTableOffset,
 		TexMtxTableOffset,
 		PostTexMtxTableOffset,
-		TextureRemapTableOffset,
+		TextureIDTableOffset,
 		TevOrderTableOffset,
 		ColorRegisterTableOffset,
 		ColorConstantTableOffset,
@@ -64,7 +64,7 @@ bool readMAT3(FILE* fp, struct J3DMaterial** outputArray, unsigned int* elementC
 	fread_e(&PostTexGenTableOffset, 4, 1, fp);
 	fread_e(&TexMtxTableOffset, 4, 1, fp);
 	fread_e(&PostTexMtxTableOffset, 4, 1, fp);
-	fread_e(&TextureRemapTableOffset, 4, 1, fp);
+	fread_e(&TextureIDTableOffset, 4, 1, fp);
 	fread_e(&TevOrderTableOffset, 4, 1, fp);
 	fread_e(&ColorRegisterTableOffset, 4, 1, fp);
 	fread_e(&ColorConstantTableOffset, 4, 1, fp);
@@ -106,8 +106,8 @@ bool readMAT3(FILE* fp, struct J3DMaterial** outputArray, unsigned int* elementC
 	fseek(fp, chunkStart + stringTableOffset, SEEK_SET);
 	char** stringTable = readStringTable(fp);
 	
-	outputArray = calloc((size_t)(matCount + 1), sizeof(struct J3DMaterial*));
-	if (outputArray == NULL)
+	*outputArray = calloc((size_t)(matCount + 1), sizeof(struct J3DMaterial*));
+	if (*outputArray == NULL)
 		return false;
 
 	//Now to read the materials themselves
@@ -176,7 +176,7 @@ bool readMAT3(FILE* fp, struct J3DMaterial** outputArray, unsigned int* elementC
 
 		for (size_t i = 0; i < 8; i++)
 		{
-			if (!isTableIndexNULL(2, fp, chunkStart, LightInfoOffset))
+			if (!isTableIndexNULL(2, fp))
 			{
 				struct Light* curlight = calloc(1, sizeof(struct Light));
 				RETURN_FALSE_IF_FALSE(readFromTableWithFunc(curlight, 2, sizeof(struct Light), &readLight, fp, chunkStart, LightInfoOffset));
@@ -224,11 +224,10 @@ bool readMAT3(FILE* fp, struct J3DMaterial** outputArray, unsigned int* elementC
 			current->PostTextureGenerators[i] = NULL; //So common that it's just always going to happen
 			if (i >= TexGenCount)
 			{
-				fseek(fp, 2, SEEK_SET); //skip the index 'cause it should be 0xFFFF!
+				fseek(fp, 2, SEEK_CUR); //skip the index 'cause it should be 0xFFFF!
 				continue;
 			}
 
-			//Don't bother checking if the index is NULL since it should not be
 			unsigned short idx = 0xFFFF;
 			fread_e(&idx, 2, 1, fp);
 
@@ -250,7 +249,150 @@ bool readMAT3(FILE* fp, struct J3DMaterial** outputArray, unsigned int* elementC
 			fseek(fp, pausePosition, SEEK_SET);
 		}
 	
+		long TMP = ftell(fp);
 		//Continue with Texture Matrix and Post Texture Matrix reading
+		//TexMtx
+		if (TexMtxTableOffset != 0)
+			for (size_t i = 0; i < 10; i++)
+			{
+				unsigned short idx = 0xFFFF;
+				fread_e(&idx, 2, 1, fp);
+
+				if (idx == 0xFFFF)
+					continue;
+
+				long pausePosition = ftell(fp);
+				fseek(fp, chunkStart + TexMtxTableOffset + idx * 0x64, SEEK_SET);
+
+				struct TextureMatrix* ptr = calloc(1, sizeof(struct TextureMatrix));
+				RETURN_FALSE_IF_NULL(ptr);
+
+				unsigned char Info;
+				short rot;
+				fread_e(&ptr->MatrixType, 1, 1, fp);
+				fread_e(&Info, 1, 1, fp);
+				ptr->Mode = (Info & 0x3F);
+				ptr->IsMaya = (Info >> 7 == 1);
+				fseek(fp, 2, SEEK_CUR); //Padding
+				fread_e(&ptr->Center, 4, 3, fp);
+				fread_e(&ptr->Scale, 4, 2, fp);
+				fread_e(&rot, 2, 1, fp);
+				ptr->Rotation = ((float)rot / 0x7FFF);
+				fseek(fp, 2, SEEK_CUR); //Padding
+				fread_e(&ptr->Translation, 4, 2, fp);
+				fread_e(&ptr->ProjectionMatrix, 4, 16, fp);
+
+				current->TextureMatricies[i] = ptr;
+				fseek(fp, pausePosition, SEEK_SET);
+			}
+		else
+			fseek(fp, 20, SEEK_CUR); //Skip all the 0xFFFF
+		//PostTexMtx
+		if (PostTexMtxTableOffset != 0)
+			for (size_t i = 0; i < 20; i++)
+			{
+				unsigned short idx = 0xFFFF;
+				fread_e(&idx, 2, 1, fp);
+
+				if (idx == 0xFFFF)
+					continue;
+
+				long pausePosition = ftell(fp);
+				fseek(fp, chunkStart + PostTexMtxTableOffset + idx * 0x64, SEEK_SET);
+
+				struct TextureMatrix* ptr = calloc(1, sizeof(struct TextureMatrix));
+				RETURN_FALSE_IF_NULL(ptr);
+
+				unsigned char Info;
+				short rot;
+				fread_e(&ptr->MatrixType, 1, 1, fp);
+				fread_e(&Info, 1, 1, fp);
+				ptr->Mode = (Info & 0x3F);
+				ptr->IsMaya = (Info >> 7 == 1);
+				fseek(fp, 2, SEEK_CUR); //Padding
+				fread_e(&ptr->Center, 4, 3, fp);
+				fread_e(&ptr->Scale, 4, 2, fp);
+				fread_e(&rot, 2, 1, fp);
+				ptr->Rotation = ((float)rot / 0x7FFF);
+				fseek(fp, 2, SEEK_CUR); //Padding
+				fread_e(&ptr->Translation, 4, 2, fp);
+				fread_e(&ptr->ProjectionMatrix, 4, 16, fp);
+
+				current->PostTextureMatricies[i] = ptr;
+				fseek(fp, pausePosition, SEEK_SET);
+			}
+		else
+			fseek(fp, 40, SEEK_CUR); //Skip all the 0xFFFF
+
+		//Texture time!!
+		for (size_t i = 0; i < 8; i++)
+		{
+			current->Textures[i] = NULL; //so common we always do it
+
+			if (isTableIndexNULL(2, fp))
+			{
+				fseek(fp, 2, SEEK_CUR);
+				continue;
+			}
+
+			unsigned short idx = 0;
+
+			RETURN_FALSE_IF_FALSE(readFromTable(&idx, 2, 2, fp, chunkStart, TextureIDTableOffset));
+			current->Textures[i] = *textureArray[idx];
+		}
+
+		//TEV CONSTANT Colors (0-255)
+		for (size_t i = 0; i < 4; i++)
+		{
+			RETURN_FALSE_IF_FALSE(readFromTableOrDefault(&current->ColorConstants[i], 2, 4, fp, chunkStart, ColorConstantTableOffset, &COLOR_DEFAULT, 4));
+		}
+
+		//Need to do it this way because TEV Stages should be built all at once
+		unsigned char TevConstColSel[16] = { 0 }, TevConstAlpSel[16] = { 0 };
+		unsigned short TevOrderIndicies[16] = { 0 }, TevStageIndicies[16] = { 0 }, TevSwapModeSelectionIndicies[16] = { 0 }, UNKNOWN[12] = { 0 };
+		fread_e(&TevConstColSel[0], 1, 16, fp);
+		fread_e(&TevConstAlpSel[0], 1, 16, fp);
+		fread_e(&TevOrderIndicies[0], 2, 16, fp);
+
+		//TEV REGISTER Colors (-short to +short)
+		for (size_t i = 0; i < 4; i++)
+		{
+			RETURN_FALSE_IF_FALSE(readFromTableOrDefault(&current->ColorRegisters[i], 2, 8, fp, chunkStart, ColorRegisterTableOffset, &COLOR_REGISTER_DEFAULT, 8));
+		}
+		fread_e(&TevStageIndicies[0], 2, 16, fp);
+		fread_e(&TevSwapModeSelectionIndicies[0], 2, 16, fp);
+
+		//Swap Tables
+		for (size_t i = 0; i < 4; i++)
+		{
+			RETURN_FALSE_IF_FALSE(readFromTableOrDefault(&current->SwapTables[i], 2, 4, fp, chunkStart, TevSwapModeTableOffset, &DEFAULT_SWAPTABLE, 4));
+		}
+
+		//No clue what this is for...
+		fread_e(&UNKNOWN[0], 2, 12, fp);
+		long materialfinishpos = ftell(fp);
+
+		//Time to create the TEV Stages.
+		for (size_t i = 0; i < TevStageCount; i++)
+		{
+			struct TextureEnvironmentStage* tev = calloc(1, sizeof(TEVStage));
+
+			RETURN_FALSE_IF_NULL(tev);
+
+			tev->ConstantColorSelection = TevConstColSel[i];
+			tev->ConstantAlphaSelection = TevConstAlpSel[i];
+
+
+
+
+			current->TEVStages[i] = tev; //Tev Stages must exist in order so this is fine
+		}
+
+		//TEV Orders
+
+
+
+
 	}
 
 	return true;
@@ -259,6 +401,12 @@ bool readMAT3(FILE* fp, struct J3DMaterial** outputArray, unsigned int* elementC
 //Index read from the file cannot end up as NULL (-1)
 bool readFromTable(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _Stream, long ChunkStart, long TableOffset)
 {
+	if (isTableIndexNULL(IndexSize, _Stream))
+	{
+		fseek(_Stream, IndexSize, SEEK_CUR);
+		return true;
+	}
+
 	void* Index = calloc(1, IndexSize);
 	RETURN_FALSE_IF_NULL(Index);
 
@@ -281,7 +429,7 @@ bool readFromTable(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _S
 //Index read from the file can end up as NULL (-1)
 bool readFromTableOrDefault(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _Stream, long ChunkStart, long TableOffset, void* _Default, size_t DefaultSize)
 {
-	if (isTableIndexNULL(IndexSize, _Stream, ChunkStart, TableOffset))
+	if (isTableIndexNULL(IndexSize, _Stream))
 	{
 		memcpy(_Buffer, _Default, DefaultSize);
 		fseek(_Stream, IndexSize, SEEK_CUR);
@@ -328,7 +476,7 @@ bool readFromTableWithFunc(void* _Buffer, size_t IndexSize, size_t ElementSize, 
 	return true;
 }
 
-bool isTableIndexNULL(size_t IndexSize, FILE* _Stream, long ChunkStart, long TableOffset)
+bool isTableIndexNULL(size_t IndexSize, FILE* _Stream)
 {
 	long pausePosition = ftell(_Stream);
 

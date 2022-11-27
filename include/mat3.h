@@ -629,7 +629,7 @@ typedef struct J3DMaterial
 	struct JUTTexture* Textures[8]; //The TEX1 section will hold the actual instances of these. However if TEX1 doesn't have a texture that's pointed to here, we'll add it to TEX1. Genius??
 	struct TextureMatrix* TextureMatricies[10];
 	//Not often used
-	struct TextureMatrix* PostTextureMatricies[10];
+	struct TextureMatrix* PostTextureMatricies[20]; //Why are there double of these??
 	union Matrix2x4f IndirectTextureMatricies[3];
 	union Vector4uc ColorMatRegs[2];
 	union Vector4uc ColorAmbRegs[2];
@@ -657,6 +657,7 @@ typedef struct J3DMaterial
 	struct TextureEnvironmentStage* TEVStages[16];
 
 	struct IndirectTextureStage* IndirectStages[4];
+	struct SwapTable SwapTables[4];
 
 	struct AlphaTest* AlphaTest;
 	struct Blend* BlendInfo;
@@ -668,13 +669,13 @@ struct TextureMatrix
 {
 	enum TexMtxMapping Mode;
 	bool IsMaya;
-	enum TexMtxProjection Projection;
+	enum TexMtxProjection MatrixType;
 
 	union Vector3f Center; //Z is unused
 	union Vector2f Scale;
 	float Rotation;
 	union Vector2f Translation;
-	union Matrix4x4f EffectMatrix;
+	union Matrix4x4f ProjectionMatrix;
 };
 
 struct LightChannelControl
@@ -812,13 +813,16 @@ struct NBT
 	unsigned char UNKNOWN;
 	union Vector3f Scale;
 };
+
+
+const static struct SwapTable DEFAULT_SWAPTABLE = {0, 1, 2, 3};
 #pragma endregion
 
-bool readMAT3(FILE* fp, struct J3DMaterial** outputArray, unsigned int* elementCount, struct JUTTexture** textureArray);
+bool readMAT3(FILE* fp, struct J3DMaterial*** outputArray, unsigned int* elementCount, struct JUTTexture*** textureArray);
 bool readFromTable(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _Stream, long ChunkStart, long TableOffset);
 bool readFromTableOrDefault(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _Stream, long ChunkStart, long TableOffset, void* _Default, size_t DefaultSize);
 bool readFromTableWithFunc(void* _Buffer, size_t IndexSize, size_t ElementSize, bool (*func_ptr)(void*, FILE*), FILE* _Stream, long ChunkStart, long TableOffset);
-bool isTableIndexNULL(size_t IndexSize, FILE* _Stream, long ChunkStart, long TableOffset);
+bool isTableIndexNULL(size_t IndexSize, FILE* _Stream);
 //===============================================
 bool readZCompare(void* _Buffer, FILE* fp);
 bool readChannelControl(void* _Buffer, FILE* fp);

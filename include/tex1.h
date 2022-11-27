@@ -94,7 +94,7 @@ struct JUTTexture
 	unsigned int PaletteDataSize;
 };
 
-bool readTEX1(FILE* fp, struct JUTTexture** outputArray, unsigned int* elementCount);
+bool readTEX1(FILE* fp, struct JUTTexture*** outputArray, unsigned int* elementCount);
 bool readJUTTexture(FILE* fp, struct JUTTexture* output);
 int calcImageSize(enum ImageFormats Format, unsigned short width, unsigned short height, unsigned int MipCount);
 bool writeTEX1(const struct aiScene *data);

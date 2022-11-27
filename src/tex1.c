@@ -3,7 +3,7 @@
 
 #include "tex1.h"
 
-bool readTEX1(FILE* fp, struct JUTTexture** outputArray, unsigned int* elementCount)
+bool readTEX1(FILE* fp, struct JUTTexture*** outputArray, unsigned int* elementCount)
 {
 	long chunkStart = ftell(fp);
 	if (!isMagicMatch(fp, MAGIC_TEX1))
@@ -23,8 +23,8 @@ bool readTEX1(FILE* fp, struct JUTTexture** outputArray, unsigned int* elementCo
 	fseek(fp, chunkStart + stringTableOffset, SEEK_SET);
 	char** stringTable = readStringTable(fp);
 
-	outputArray = calloc((size_t)(texCount + 1), sizeof(struct JUTTexture*));
-	if (outputArray == NULL)
+	*outputArray = calloc((size_t)(texCount + 1), sizeof(struct JUTTexture*));
+	if (*outputArray == NULL)
 		return false;
 
 	for (int i = 0; i < texCount; i++)
@@ -36,7 +36,7 @@ bool readTEX1(FILE* fp, struct JUTTexture** outputArray, unsigned int* elementCo
 		fseek(fp, chunkStart + dataOffset + (i * 0x20), SEEK_SET);
 		if (!readJUTTexture(fp, currenttex))
 			return false;
-		outputArray[i] = currenttex;
+		*outputArray[i] = currenttex;
 	}
 	free(stringTable);
 	return true;
