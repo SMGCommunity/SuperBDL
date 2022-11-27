@@ -611,6 +611,14 @@ enum GXFogType
 #pragma endregion
 
 #pragma region Structs
+struct SwapTable
+{
+	enum GXTevColorChannel RED;
+	enum GXTevColorChannel GREEN;
+	enum GXTevColorChannel BLUE;
+	enum GXTevColorChannel ALPHA;
+};
+
 /// <summary>
 /// A full J3D Material.<para/>Requires CALLOC.
 /// </summary>
@@ -753,14 +761,6 @@ typedef struct TextureEnvironmentStage
 	bool IndirectAddPrevious;
 	bool IndirectUseOriginalLoD;
 } TEVStage;
-
-struct SwapTable
-{
-	enum GXTevColorChannel RED;
-	enum GXTevColorChannel GREEN;
-	enum GXTevColorChannel BLUE;
-	enum GXTevColorChannel ALPHA;
-};
 
 struct IndirectTextureStage
 {

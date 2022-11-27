@@ -95,7 +95,7 @@ bool readJUTTexture(FILE* fp, struct JUTTexture* output)
 	return read == imageDataSize;
 }
 
-int calcImageSize(enum ImageFormats Format, unsigned short width, unsigned short height, unsigned int MipCount)
+int calcImageSize(enum GXImageFormats Format, unsigned short width, unsigned short height, unsigned int MipCount)
 {
 	int blockSize = 0, BlockWidth = 0, BlockHeight = 0;
 
