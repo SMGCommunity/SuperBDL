@@ -820,7 +820,7 @@ const static struct SwapTable DEFAULT_SWAPTABLE = {0, 1, 2, 3};
 
 bool readMAT3(FILE* fp, struct J3DMaterial*** outputArray, unsigned int* elementCount, struct JUTTexture*** textureArray);
 bool readFromTable(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _Stream, long ChunkStart, long TableOffset);
-bool readFromTableOrDefault(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _Stream, long ChunkStart, long TableOffset, void* _Default, size_t DefaultSize);
+bool readFromTableOrDefault(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _Stream, long ChunkStart, long TableOffset, const void* _Default, size_t DefaultSize);
 bool readFromTableWithFunc(void* _Buffer, size_t IndexSize, size_t ElementSize, bool (*func_ptr)(void*, FILE*), FILE* _Stream, long ChunkStart, long TableOffset);
 bool isTableIndexNULL(size_t IndexSize, FILE* _Stream);
 //===============================================

@@ -51,18 +51,18 @@ union Vector4s
 /// <summary>
 /// The color WHITE
 /// </summary>
-const static union Vector4uc COLOR_WHITE = { 255, 255, 255, 255 };
+const static union Vector4uc COLOR_WHITE = { .r = 255, .g = 255, .b = 255, .a = 255 };
 /// <summary>
 /// The color BLACK
 /// </summary>
-const static union Vector4uc COLOR_BLACK = { 0, 0, 0, 255 };
+const static union Vector4uc COLOR_BLACK = { .r = 0, .g = 0, .b = 0, .a = 255 };
 /// <summary>
 /// The color.... of Transperant Black. According to Jasper the GameCube uses this as a default, and since the Wii also uses TEV, that means the Wii also uses this color as default
 /// </summary>
-const static union Vector4uc COLOR_DEFAULT = { 0, 0, 0, 0 };
+const static union Vector4uc COLOR_DEFAULT = { .r = 0, .g = 0, .b = 0, .a = 0 };
 
 /// <summary>
 /// The default TEV Register color... basically COLOR_DEFAULT but with shorts instead
 /// </summary>
-const static union Vector4s COLOR_REGISTER_DEFAULT = {0,0,0,0};
+const static union Vector4s COLOR_REGISTER_DEFAULT = { .r = 0, .g = 0, .b = 0, .a = 0 };
 #endif /* __VECTOR_H */

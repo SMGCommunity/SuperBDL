@@ -427,7 +427,7 @@ bool readFromTable(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _S
 }
 
 //Index read from the file can end up as NULL (-1)
-bool readFromTableOrDefault(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _Stream, long ChunkStart, long TableOffset, void* _Default, size_t DefaultSize)
+bool readFromTableOrDefault(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _Stream, long ChunkStart, long TableOffset, const void* _Default, size_t DefaultSize)
 {
 	if (isTableIndexNULL(IndexSize, _Stream))
 	{
