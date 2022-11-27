@@ -23,7 +23,7 @@ char** readStringTable(FILE* fp)
 	char** arrayptr = string_array;
 	for (int i = 0; i < stringCount; i++)
 	{
-		fseek(fp, 4, SEEK_CUR); //Skip the hash
+		fseek(fp, 2, SEEK_CUR); //Skip the hash
 		char* string = malloc(MAX_STRING_ALLOCATION);
 		unsigned short stringOffset;
 		fread_e(&stringOffset, 2, 1, fp);
@@ -103,6 +103,7 @@ size_t fread_e(void* _Buffer, size_t ElementSize, size_t ElementCount, FILE* _St
 
 	if (ElementSize == 4)
 	{
+		long p = ftell(_Stream);
 		Counter = fread(_Buffer, ElementSize, ElementCount, _Stream);
 		unsigned int* ptr = (unsigned int*)_Buffer;
 		for (size_t i = 0; i < ElementCount; i++)

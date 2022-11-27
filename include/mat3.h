@@ -611,6 +611,9 @@ enum GXFogType
 #pragma endregion
 
 #pragma region Structs
+/// <summary>
+/// A full J3D Material.<para/>Requires CALLOC.
+/// </summary>
 typedef struct J3DMaterial
 {
 	/// <summary>
@@ -625,6 +628,8 @@ typedef struct J3DMaterial
 	bool EnableDithering;
 	struct JUTTexture* Textures[8]; //The TEX1 section will hold the actual instances of these. However if TEX1 doesn't have a texture that's pointed to here, we'll add it to TEX1. Genius??
 	struct TextureMatrix* TextureMatricies[10];
+	//Not often used
+	struct TextureMatrix* PostTextureMatricies[10];
 	union Matrix2x4f IndirectTextureMatricies[3];
 	union Vector4uc ColorMatRegs[2];
 	union Vector4uc ColorAmbRegs[2];
@@ -643,7 +648,11 @@ typedef struct J3DMaterial
 	enum GXCullMode Culling;
 
 	struct LightChannelControl* LightChannels[2];
+	//May be NULL...In fact these will most likely be NULL... lol
+	struct Light* Lights[8];
 	struct TextureGenerator* TextureGenerators[8];
+	//Not often used
+	struct TextureGenerator* PostTextureGenerators[8];
 
 	struct TextureEnvironmentStage* TEVStages[16];
 
@@ -670,10 +679,10 @@ struct TextureMatrix
 
 struct LightChannelControl
 {
-	struct ColorChannelControl* Color, * Alpha;
+	struct ChannelControl* Color, * Alpha;
 };
 
-struct ColorChannelControl
+struct ChannelControl
 {
 	bool LightingEnabled;
 	enum GXColorSource MaterialColorSource;
@@ -683,13 +692,19 @@ struct ColorChannelControl
 	enum GXAttenuationFunction AttenuationFunc;
 };
 
+struct Light
+{
+	union Vector3f Position;
+	union Vector3f Direction;
+	union Vector4uc Color;
+	float A0, A1, A2, K0, K1, K2;
+};
+
 struct TextureGenerator
 {
 	enum GXTexGenType Type;
 	enum GXTexGenSrc Source;
 	enum GXTexGenMatrix Matrix;
-	bool Normalize;
-	enum GXPostTexGenMatrix PostMatrix;
 };
 
 typedef struct TextureEnvironmentStage
@@ -765,11 +780,16 @@ struct AlphaTest
 
 struct Blend
 {
+	//==== ZCompLoc (aka "Test Before Texture") ====
+	bool TestDepthBeforeTexture;
+
+	//==== ZCompare ====
 	bool EnableDepthTest;
 	/// Always PixelAlpha <op> EFB
 	enum GXCompareType DepthFunction;
 	bool WriteToZBuffer;
 
+	//==== Blending ====
 	enum GXBlendMode BlendMode;
 	enum GXBlendFactor BlendSourceFactor;
 	enum GXBlendFactor BlendDestFactor;
@@ -796,8 +816,14 @@ struct NBT
 
 bool readMAT3(FILE* fp, struct J3DMaterial** outputArray, unsigned int* elementCount, struct JUTTexture** textureArray);
 bool readFromTable(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _Stream, long ChunkStart, long TableOffset);
+bool readFromTableOrDefault(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _Stream, long ChunkStart, long TableOffset, void* _Default, size_t DefaultSize);
 bool readFromTableWithFunc(void* _Buffer, size_t IndexSize, size_t ElementSize, bool (*func_ptr)(void*, FILE*), FILE* _Stream, long ChunkStart, long TableOffset);
-bool readColorChannel(void* _Buffer, FILE* fp);
+bool isTableIndexNULL(size_t IndexSize, FILE* _Stream, long ChunkStart, long TableOffset);
+//===============================================
+bool readZCompare(void* _Buffer, FILE* fp);
+bool readChannelControl(void* _Buffer, FILE* fp);
+bool readLight(void* _Buffer, FILE* fp);
+//===============================================
 bool writeMAT3(const struct aiScene *data);
 
 bool matcmp(struct J3DMaterial* mat1, struct J3DMaterial* mat2);

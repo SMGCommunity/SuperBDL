@@ -63,7 +63,8 @@ bool readJUTTexture(FILE* fp, struct JUTTexture* output)
 	fread_e(&output->MaxAnisotropy, 1, 1, fp);
 	fread_e(&output->MinificationFilter, 1, 1, fp);
 	fread_e(&output->MagnificationFilter, 1, 1, fp);
-	unsigned char minlod = 0, maxlod = 0, lodbias = 0;
+	unsigned char minlod = 0, maxlod = 0;
+	unsigned short lodbias = 0;
 	fread_e(&minlod, 1, 1, fp);
 	fread_e(&maxlod, 1, 1, fp);
 	output->MinLOD = minlod / 8.f;
@@ -90,7 +91,7 @@ bool readJUTTexture(FILE* fp, struct JUTTexture* output)
 	if (output->ImageData == NULL)
 		return false;
 	size_t read = fread_e(output->ImageData, sizeof(char), imageDataSize, fp);
-
+	output->ImageDataSize = read;
 	return read == imageDataSize;
 }
 

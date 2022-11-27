@@ -21,7 +21,6 @@ unsigned int getChunkPosition(FILE* fp, const char* magic)
 
 		unsigned int ChunkSize;
 		fread_e(&ChunkSize, 4, 1, fp);
-		ChunkSize = be32toh(ChunkSize);
 		fseek(fp, ChunkSize-0x08, SEEK_CUR); //minus 0x08 because we read 8 bytes from the current header
 	}
 

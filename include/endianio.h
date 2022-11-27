@@ -31,15 +31,8 @@
 #define RETURN_NULL_IF_NULL(var) if((var) == NULL) return NULL;
 #define RETURN_FALSE_IF_NULL(var) if((var) == NULL) return false;
 #define RETURN_FALSE_IF_FALSE(var) if(!(var)) return false;
-#define RETURN_FALSE_IF_FAIL(func, required) if((func) != (required)) return false;
 
 bool isMagicMatch(FILE* fp, const char* target);
-
-int readReverseUint32(FILE* fp, unsigned int* output);
-int readReverseUint16(FILE* fp, unsigned short* output);
-int writeReverseUint32(FILE* fp, unsigned int* output);
-int writeReverseUint16(FILE* fp, unsigned short* output);
-
 char** readStringTable(FILE* fp);
 
 size_t fread_e(void* _Buffer, size_t ElementSize, size_t ElementCount, FILE* _Stream);

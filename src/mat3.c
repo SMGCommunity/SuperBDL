@@ -47,8 +47,8 @@ bool readMAT3(FILE* fp, struct J3DMaterial** outputArray, unsigned int* elementC
 		FogInfoTableOffset,
 		AlphaTestTableOffset,
 		BlendModeTableOffset,
-		ZModeTableOffset,
-		ZCompareOffset,
+		ZCompareTableOffset,
+		ZEarlyTestTableOffset,
 		DitherInfoOffset,
 		NBTScaleOffset;
 
@@ -75,8 +75,8 @@ bool readMAT3(FILE* fp, struct J3DMaterial** outputArray, unsigned int* elementC
 	fread_e(&FogInfoTableOffset, 4, 1, fp);
 	fread_e(&AlphaTestTableOffset, 4, 1, fp);
 	fread_e(&BlendModeTableOffset, 4, 1, fp);
-	fread_e(&ZModeTableOffset, 4, 1, fp);
-	fread_e(&ZCompareOffset, 4, 1, fp);
+	fread_e(&ZCompareTableOffset, 4, 1, fp);
+	fread_e(&ZEarlyTestTableOffset, 4, 1, fp);
 	fread_e(&DitherInfoOffset, 4, 1, fp);
 	fread_e(&NBTScaleOffset, 4, 1, fp);
 
@@ -114,58 +114,149 @@ bool readMAT3(FILE* fp, struct J3DMaterial** outputArray, unsigned int* elementC
 	for (size_t i = 0; i < matCount; i++)
 	{
 		struct J3DMaterial* current = calloc(1, sizeof(struct J3DMaterial));
-		if (current == NULL)
-			return false;
+		RETURN_FALSE_IF_NULL(current);
 
 		current->Name = stringTable[i]; //Names ignore the Remap Table
+
+
+
+		//Create this early since we know there will only ever be 1
+		current->AlphaTest = calloc(1, sizeof(struct AlphaTest));
+		RETURN_FALSE_IF_NULL(current->AlphaTest);
+
+		//Create this early since we know there will only ever be 1
+		current->BlendInfo = calloc(1, sizeof(struct Blend));
+		RETURN_FALSE_IF_NULL(current->BlendInfo);
+
+
 
 		fseek(fp, chunkStart + dataOffset + (RemapTable[i] * MATERIAL_ENTRY_SIZE), SEEK_SET);
 
 		unsigned char LightChannelCount,
-			TexGenNum,
-			TevStageNum,
-			ZCompLocIndex,
-			ZModeIndex;
+			TexGenCount,
+			TevStageCount;
 
-		RETURN_FALSE_IF_FAIL(fread_e(&current->MaterialMode, 1, 1, fp), 1);
+		fread_e(&current->MaterialMode, 1, 1, fp);
 
 		RETURN_FALSE_IF_FALSE(readFromTable(&current->Culling, 1, 4, fp, chunkStart, CullModeInfoOffset));
 		RETURN_FALSE_IF_FALSE(readFromTable(&LightChannelCount, 1, 1, fp, chunkStart, ColorChannelCountTableOffset));
-		assert(LightChannelCount <= 0x02);
-		RETURN_FALSE_IF_FALSE(readFromTable(&TexGenNum, 1, 1, fp, chunkStart, TexGenCountTable));
-		RETURN_FALSE_IF_FALSE(readFromTable(&TevStageNum, 1, 1, fp, chunkStart, TevStageCountTableOffset));
-		RETURN_FALSE_IF_FALSE(readFromTable(&ZCompLocIndex, 1, 1, fp, chunkStart, ZCompareOffset));
-		RETURN_FALSE_IF_FALSE(readFromTable(&ZModeIndex, 1, 1, fp, chunkStart, ZModeTableOffset));
+		//_ASSERT(LightChannelCount <= 0x02);
+		RETURN_FALSE_IF_FALSE(readFromTable(&TexGenCount, 1, 1, fp, chunkStart, TexGenCountTable));
+		RETURN_FALSE_IF_FALSE(readFromTable(&TevStageCount, 1, 1, fp, chunkStart, TevStageCountTableOffset));
+		RETURN_FALSE_IF_FALSE(readFromTable(&current->BlendInfo->TestDepthBeforeTexture, 1, 1, fp, chunkStart, ZEarlyTestTableOffset));
+		RETURN_FALSE_IF_FALSE(readFromTableWithFunc(current->BlendInfo, 1, 4, &readZCompare, fp, chunkStart, ZCompareTableOffset)); //DO NOT USE & FOR BLENDINFO!
 		RETURN_FALSE_IF_FALSE(readFromTable(&current->EnableDithering, 1, 1, fp, chunkStart, DitherInfoOffset));
 
-
-
-
-
-
-
+		for (size_t i = 0; i < 2; i++)
+		{
+			RETURN_FALSE_IF_FALSE(readFromTableOrDefault(&current->ColorMatRegs[i], 2, 4, fp, chunkStart, MaterialColorTableOffset, &COLOR_DEFAULT, 4));
+		}
 
 		for (size_t i = 0; i < LightChannelCount; i++)
 		{
 			struct LightChannelControl* LCC = calloc(1, sizeof(struct LightChannelControl));
-			struct ColorChannelControl* Color = calloc(1, sizeof(struct ColorChannelControl));
-			struct ColorChannelControl* Alpha = calloc(1, sizeof(struct ColorChannelControl));
+			RETURN_FALSE_IF_NULL(LCC);
+			struct ChannelControl* Color = calloc(1, sizeof(struct ChannelControl));
 			RETURN_FALSE_IF_NULL(Color);
+			struct ChannelControl* Alpha = calloc(1, sizeof(struct ChannelControl));
 			RETURN_FALSE_IF_NULL(Alpha);
-			
-			RETURN_FALSE_IF_FALSE(readFromTableWithFunc(Color, 2, sizeof(struct ColorChannelControl), &readColorChannel, fp, chunkStart, ColorChannelTableOffset));
-			RETURN_FALSE_IF_FALSE(readFromTableWithFunc(Alpha, 2, sizeof(struct ColorChannelControl), &readColorChannel, fp, chunkStart, ColorChannelTableOffset));
+
+			RETURN_FALSE_IF_FALSE(readFromTableWithFunc(Color, 2, sizeof(struct ChannelControl), &readChannelControl, fp, chunkStart, ColorChannelTableOffset));
+			RETURN_FALSE_IF_FALSE(readFromTableWithFunc(Alpha, 2, sizeof(struct ChannelControl), &readChannelControl, fp, chunkStart, ColorChannelTableOffset));
 
 			LCC->Color = Color;
 			LCC->Alpha = Alpha;
 			current->LightChannels[i] = LCC;
 		}
 
+		for (size_t i = 0; i < 2; i++)
+		{
+			RETURN_FALSE_IF_FALSE(readFromTableOrDefault(&current->ColorAmbRegs[i], 2, 4, fp, chunkStart, AmbientColorTableOffset, &COLOR_DEFAULT, 4));
+		}
+
+		for (size_t i = 0; i < 8; i++)
+		{
+			if (!isTableIndexNULL(2, fp, chunkStart, LightInfoOffset))
+			{
+				struct Light* curlight = calloc(1, sizeof(struct Light));
+				RETURN_FALSE_IF_FALSE(readFromTableWithFunc(curlight, 2, sizeof(struct Light), &readLight, fp, chunkStart, LightInfoOffset));
+				current->Lights[i] = curlight;
+			}
+			else
+			{
+				fseek(fp, 2, SEEK_CUR); //skip the index 'cause it should be 0xFFFF!
+				current->Lights[i] = NULL; //They should be NULL by default but just in case...
+			}
+		}
+
+
+		//TexGen
+		for (size_t i = 0; i < 8; i++)
+		{
+			if (i >= TexGenCount)
+			{
+				fseek(fp, 2, SEEK_CUR); //skip the index 'cause it should be 0xFFFF!
+				current->TextureGenerators[i] = NULL;
+				continue;
+			}
+
+			//Don't bother checking if the index is NULL since it should not be
+			unsigned short idx = 0xFFFF;
+			fread_e(&idx, 2, 1, fp);
+
+			long pausePosition = ftell(fp);
+			fseek(fp, chunkStart + TexGenTableOffset + idx * 4, SEEK_SET);
+
+			struct TextureGenerator* texgen = calloc(1, sizeof(struct TextureGenerator));
+			RETURN_FALSE_IF_NULL(texgen);
+
+			fread_e(&texgen->Type, 1, 1, fp);
+			fread_e(&texgen->Source, 1, 1, fp);
+			fread_e(&texgen->Matrix, 1, 1, fp);
+			//1 byte padding
+
+			current->TextureGenerators[i] = texgen;
+			fseek(fp, pausePosition, SEEK_SET);
+		}
+		//PostTexGen
+		for (size_t i = 0; i < 8; i++)
+		{
+			current->PostTextureGenerators[i] = NULL; //So common that it's just always going to happen
+			if (i >= TexGenCount)
+			{
+				fseek(fp, 2, SEEK_SET); //skip the index 'cause it should be 0xFFFF!
+				continue;
+			}
+
+			//Don't bother checking if the index is NULL since it should not be
+			unsigned short idx = 0xFFFF;
+			fread_e(&idx, 2, 1, fp);
+
+			if (idx == 0xFFFF)
+				continue;
+
+			long pausePosition = ftell(fp);
+			fseek(fp, chunkStart + PostTexGenTableOffset + idx * 4, SEEK_SET);
+
+			struct TextureGenerator* texgen = calloc(1, sizeof(struct TextureGenerator));
+			RETURN_FALSE_IF_NULL(texgen);
+
+			fread_e(&texgen->Type, 1, 1, fp);
+			fread_e(&texgen->Source, 1, 1, fp);
+			fread_e(&texgen->Matrix, 1, 1, fp);
+			//1 byte padding
+
+			current->PostTextureGenerators[i] = texgen;
+			fseek(fp, pausePosition, SEEK_SET);
+		}
+	
+		//Continue with Texture Matrix and Post Texture Matrix reading
 	}
 
 	return true;
 }
 
+//Index read from the file cannot end up as NULL (-1)
 bool readFromTable(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _Stream, long ChunkStart, long TableOffset)
 {
 	void* Index = calloc(1, IndexSize);
@@ -181,7 +272,36 @@ bool readFromTable(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _S
 	else if (IndexSize == 4)
 		fseek(_Stream, ChunkStart + TableOffset + (*(unsigned int*)Index) * (long)ElementSize, SEEK_SET);
 
-	RETURN_FALSE_IF_FAIL(fread_e(_Buffer, ElementSize, 1, _Stream), ElementSize);
+	fread_e(_Buffer, ElementSize, 1, _Stream);
+
+	fseek(_Stream, pausePosition, SEEK_SET);
+	return true;
+}
+
+//Index read from the file can end up as NULL (-1)
+bool readFromTableOrDefault(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _Stream, long ChunkStart, long TableOffset, void* _Default, size_t DefaultSize)
+{
+	if (isTableIndexNULL(IndexSize, _Stream, ChunkStart, TableOffset))
+	{
+		memcpy(_Buffer, _Default, DefaultSize);
+		fseek(_Stream, IndexSize, SEEK_CUR);
+		return true;
+	}
+
+	void* Index = calloc(1, IndexSize);
+	RETURN_FALSE_IF_NULL(Index);
+
+	fread_e(Index, IndexSize, 1, _Stream);
+	long pausePosition = ftell(_Stream);
+
+	if (IndexSize == 1)
+		fseek(_Stream, ChunkStart + TableOffset + (*(char*)Index) * (long)ElementSize, SEEK_SET);
+	else if (IndexSize == 2)
+		fseek(_Stream, ChunkStart + TableOffset + (*(unsigned short*)Index) * (long)ElementSize, SEEK_SET);
+	else if (IndexSize == 4)
+		fseek(_Stream, ChunkStart + TableOffset + (*(unsigned int*)Index) * (long)ElementSize, SEEK_SET);
+
+	fread_e(_Buffer, ElementSize, 1, _Stream);
 
 	fseek(_Stream, pausePosition, SEEK_SET);
 	return true;
@@ -202,17 +322,61 @@ bool readFromTableWithFunc(void* _Buffer, size_t IndexSize, size_t ElementSize, 
 	else if (IndexSize == 4)
 		fseek(_Stream, ChunkStart + TableOffset + (*(unsigned int*)Index) * (long)ElementSize, SEEK_SET);
 
-	RETURN_FALSE_IF_FALSE(func_Ptr(_Buffer, _Stream));
+	RETURN_FALSE_IF_FALSE(func_ptr(_Buffer, _Stream));
 
 	fseek(_Stream, pausePosition, SEEK_SET);
 	return true;
 }
 
-bool readColorChannel(void* _Buffer,FILE* fp)
+bool isTableIndexNULL(size_t IndexSize, FILE* _Stream, long ChunkStart, long TableOffset)
+{
+	long pausePosition = ftell(_Stream);
+
+	void* Index = calloc(1, IndexSize);
+	RETURN_FALSE_IF_NULL(Index);
+
+	fread_e(Index, IndexSize, 1, _Stream);
+
+	fseek(_Stream, pausePosition, SEEK_SET);
+
+	if (IndexSize == 1)
+	{
+		if ((*(unsigned char*)Index) == 0xFF)
+			return true;
+	}
+	else if (IndexSize == 2)
+	{
+		if ((*(unsigned short*)Index) == 0xFFFF)
+			return true;
+	}
+	else if (IndexSize == 4)
+	{
+		if ((*(unsigned int*)Index) == 0xFFFFFFFF)
+			return true;
+	}
+	return false;
+}
+
+//===============================================
+
+bool readZCompare(void* _Buffer, FILE* fp)
 {
 	RETURN_FALSE_IF_NULL(_Buffer);
 
-	struct ColorChannelControl* ptr = (struct ColorChannelControl*)_Buffer;
+	struct Blend* ptr = (struct Blend*)_Buffer;
+
+	fread_e(&ptr->EnableDepthTest, 1, 1, fp);
+	fread_e(&ptr->DepthFunction, 1, 1, fp);
+	fread_e(&ptr->WriteToZBuffer, 1, 1, fp);	
+
+	return true;
+}
+
+bool readChannelControl(void* _Buffer,FILE* fp)
+{
+	RETURN_FALSE_IF_NULL(_Buffer);
+
+	struct ChannelControl* ptr = (struct ChannelControl*)_Buffer;
 
 	fread_e(&ptr->LightingEnabled, 1, 1, fp);
 	fread_e(&ptr->MaterialColorSource, 1, 1, fp);
@@ -223,6 +387,27 @@ bool readColorChannel(void* _Buffer,FILE* fp)
 
 	return true;
 }
+
+bool readLight(void* _Buffer, FILE* fp)
+{
+	RETURN_FALSE_IF_NULL(_Buffer);
+
+	struct Light* ptr = (struct Light*)_Buffer;
+
+	fread_e(&ptr->Position, 4, 3, fp);
+	fread_e(&ptr->Direction, 4, 3, fp);
+	fread_e(&ptr->Color, 1, 4, fp);
+	fread_e(&ptr->A0, 4, 1, fp);
+	fread_e(&ptr->A1, 4, 1, fp);
+	fread_e(&ptr->A2, 4, 1, fp);
+	fread_e(&ptr->K0, 4, 1, fp);
+	fread_e(&ptr->K1, 4, 1, fp);
+	fread_e(&ptr->K2, 4, 1, fp);
+
+	return true;
+}
+
+//===============================================
 
 bool matcmp(struct J3DMaterial* mat1, struct J3DMaterial* mat2) {
 	if (mat1 == mat2)
@@ -285,11 +470,11 @@ bool matcmp(struct J3DMaterial* mat1, struct J3DMaterial* mat2) {
 
 	for (int i = 0; i < 2; ++i) {
 		if (memcmp(mat1->LightChannels[i]->Color, mat2->LightChannels[i]->Color,
-		           sizeof (struct ColorChannelControl)))
+		           sizeof (struct ChannelControl)))
 			return false;
 
 		if (memcmp(mat1->LightChannels[i]->Alpha, mat2->LightChannels[i]->Alpha,
-		           sizeof (struct ColorChannelControl)))
+		           sizeof (struct ChannelControl)))
 			return false;
 	}
 
