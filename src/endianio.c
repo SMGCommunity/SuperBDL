@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "superbdl.h"
 #include "endianio.h"
 
 bool isMagicMatch(FILE* fp, const char* target)

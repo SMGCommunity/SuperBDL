@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include "superbdl.h"
 #include "mat3.h"
 #include "tex1.h"
 
