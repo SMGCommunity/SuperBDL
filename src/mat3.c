@@ -364,7 +364,23 @@ bool readMAT3(FILE* fp, struct J3DMaterial*** outputArray, unsigned int* element
 		//TEV REGISTER Colors (-short to +short)
 		for (size_t i = 0; i < 4; i++)
 		{
-			RETURN_FALSE_IF_FALSE(readFromTableOrDefault(&current->ColorRegisters[i], 2, 8, fp, chunkStart, ColorRegisterTableOffset, &COLOR_REGISTER_DEFAULT, 8));
+			if (isTableIndexNULL(2, fp))
+			{
+				memcpy(&current->ColorRegisters[i], &COLOR_REGISTER_DEFAULT, 8);
+				fseek(fp, 2, SEEK_CUR);
+				return true;
+			}
+
+			unsigned short Index;
+
+			fread_e(&Index, 2, 1, fp);
+			long pausePosition = ftell(fp);
+
+				fseek(fp, chunkStart + ColorRegisterTableOffset + Index * 8, SEEK_SET);
+
+			fread_e(&current->ColorRegisters[i], 2, 4, fp);
+
+			fseek(fp, pausePosition, SEEK_SET);
 		}
 		fread_e(&TevStageIndicies[0], 2, 16, fp);
 		fread_e(&TevSwapModeSelectionIndicies[0], 2, 16, fp);
