@@ -128,6 +128,13 @@ bool readMAT3(FILE* fp, struct J3DMaterial*** outputArray, unsigned int* element
 		current->BlendInfo = calloc(1, sizeof(struct Blend));
 		RETURN_FALSE_IF_NULL(current->BlendInfo);
 
+		//Create this early since we know there will only ever be 1
+		current->FogInfo = calloc(1, sizeof(struct Fog));
+		RETURN_FALSE_IF_NULL(current->FogInfo);
+
+		//Create this early since we know there will only ever be 1
+		current->NBTScale = calloc(1, sizeof(struct NBT));
+		RETURN_FALSE_IF_NULL(current->NBTScale);
 
 
 		fseek(fp, chunkStart + dataOffset + (RemapTable[mid] * MATERIAL_ENTRY_SIZE), SEEK_SET);
@@ -161,8 +168,8 @@ bool readMAT3(FILE* fp, struct J3DMaterial*** outputArray, unsigned int* element
 			struct ChannelControl* Alpha = calloc(1, sizeof(struct ChannelControl));
 			RETURN_FALSE_IF_NULL(Alpha);
 
-			RETURN_FALSE_IF_FALSE(readFromTableWithFunc(Color, 2, sizeof(struct ChannelControl), &readChannelControl, fp, chunkStart, ColorChannelTableOffset));
-			RETURN_FALSE_IF_FALSE(readFromTableWithFunc(Alpha, 2, sizeof(struct ChannelControl), &readChannelControl, fp, chunkStart, ColorChannelTableOffset));
+			RETURN_FALSE_IF_FALSE(readFromTableWithFunc(Color, 2, 8, &readChannelControl, fp, chunkStart, ColorChannelTableOffset));
+			RETURN_FALSE_IF_FALSE(readFromTableWithFunc(Alpha, 2, 8, &readChannelControl, fp, chunkStart, ColorChannelTableOffset));
 
 			LCC->Color = Color;
 			LCC->Alpha = Alpha;
@@ -365,12 +372,74 @@ bool readMAT3(FILE* fp, struct J3DMaterial*** outputArray, unsigned int* element
 		//Swap Tables
 		for (size_t i = 0; i < 4; i++)
 		{
-			RETURN_FALSE_IF_FALSE(readFromTableOrDefault(&current->SwapTables[i], 2, 4, fp, chunkStart, TevSwapModeTableOffset, &DEFAULT_SWAPTABLE, 4));
+			if (isTableIndexNULL(2, fp))
+			{
+				memcpy(&current->SwapTables[i], &DEFAULT_SWAPTABLE, 4);
+				fseek(fp, 2, SEEK_CUR);
+				return true;
+			}
+
+			unsigned short idx;
+			fread_e(&idx, 2, 1, fp);
+			long pausePosition = ftell(fp);
+			fseek(fp, chunkStart + TevSwapModeTableOffset + idx * 4, SEEK_SET);
+			fread_e(&current->SwapTables[i], 1, 4, fp);
+			fseek(fp, pausePosition, SEEK_SET);
 		}
 
 		//No clue what this is for...
 		fread_e(&UNKNOWN[0], 2, 12, fp);
 		long materialfinishpos = ftell(fp);
+
+		//Time to make the Indirect TEV Stages
+		long IndTexEntryBase = chunkStart + IndTexInfoOffset + (long)(mid * 0x138);
+		fseek(fp, IndTexEntryBase, SEEK_SET);
+		bool HasIndirect = false;
+		if (IndTexInfoOffset != stringTableOffset) //I guess if these are equal, then there is no indirect information...
+			fread_e(&HasIndirect, 1, 1, fp);
+
+		if (HasIndirect)
+		{
+			unsigned char StageNum;
+			fread_e(&StageNum, 1, 1, fp);
+
+			for (size_t i = 0; i < 3; i++)
+			{
+				//IndTexMtx
+				fseek(fp, (size_t)IndTexEntryBase + 0x04 + (size_t)(0x04 * 4) + i * 0x1C, SEEK_SET);
+				union Matrix2x3f matrix;
+				fread(&matrix, 4, 6, fp);
+				unsigned char scalechar;
+				fread(&scalechar, 1, 1, fp);
+				float Scale = powf(2, scalechar);
+
+				current->IndirectTextureMatricies[i].m00 = matrix.m00 * Scale;
+				current->IndirectTextureMatricies[i].m01 = matrix.m01 * Scale;
+				current->IndirectTextureMatricies[i].m02 = matrix.m02 * Scale;
+				current->IndirectTextureMatricies[i].m03 = Scale;
+				current->IndirectTextureMatricies[i].m10 = matrix.m10 * Scale;
+				current->IndirectTextureMatricies[i].m11 = matrix.m11 * Scale;
+				current->IndirectTextureMatricies[i].m12 = matrix.m12 * Scale;
+				current->IndirectTextureMatricies[i].m13 = 0.f;
+			}
+
+			for (size_t i = 0; i < StageNum; i++)
+			{
+				struct IndirectTextureStage* ptr = calloc(1, sizeof(struct IndirectTextureStage));
+
+				//IndTexOrder
+				fseek(fp, (size_t)IndTexEntryBase + 0x04 + (i * 0x04), SEEK_SET);
+				fread_e(&ptr->TexCoordID, 1, 1, fp);
+				fread_e(&ptr->TexMapID, 1, 1, fp);
+
+				//IndTexScale
+				fseek(fp, (size_t)IndTexEntryBase + 0x04 + (size_t)(0x04 * 4) + (size_t)(0x1C * 3) + i * 0x04, SEEK_SET);
+				fread_e(&ptr->ScaleS, 1, 1, fp);
+				fread_e(&ptr->ScaleT, 1, 1, fp);
+
+				current->IndirectStages[i] = ptr;
+			}
+		}
 
 		//Time to create the TEV Stages.
 		for (size_t i = 0; i < TevStageCount; i++)
@@ -413,15 +482,42 @@ bool readMAT3(FILE* fp, struct J3DMaterial*** outputArray, unsigned int* element
 			tev->ConstantAlphaSelection = TevConstAlpSel[i];
 
 			//Swap Tables
-			tev->RasterizerSwapTable = &current->SwapTables[TevSwapModeSelectionIndicies[i]];
+			fseek(fp, chunkStart + TevSwapModeInfoOffset + TevSwapModeSelectionIndicies[i] * 0x04, SEEK_SET);
+			unsigned char RasSwapSel, TexSwapSel;
+			fread(&RasSwapSel, 1, 1, fp);
+			fread(&TexSwapSel, 1, 1, fp);
+			tev->RasterizerSwapTable = &current->SwapTables[RasSwapSel];
+			tev->TextureSwapTable = &current->SwapTables[TexSwapSel];
+
+			//TevIndirect
+			fseek(fp, chunkStart + IndTexEntryBase + 0x04 + (0x04 * 4) + (0x1C * 3) + (0x04 * 4) + i * 0x0C, SEEK_SET);
+			if (HasIndirect)
+			{
+				unsigned char IndStageID;
+				fread(&IndStageID, 1, 1, fp);
+				RETURN_FALSE_IF_NULL(current->IndirectStages[IndStageID]);
+				tev->IndirectStagePtr = &current->IndirectStages[IndStageID];
+				fread(&tev->IndirectTexFormat, 1, 1, fp);
+				fread(&tev->IndirectTexBias, 1, 1, fp);
+				fread(&tev->IndirectTexMtxID, 1, 1, fp);
+				fread(&tev->IndirectTexWrapS, 1, 1, fp);
+				fread(&tev->IndirectTexWrapT, 1, 1, fp);
+				fread(&tev->IndirectAddPrevious, 1, 1, fp);
+				fread(&tev->IndirectUseOriginalLoD, 1, 1, fp);
+				fread(&tev->IndirectTexAlpha, 1, 1, fp);
+			}
 
 			current->TEVStages[i] = tev; //Tev Stages must exist in order so this is fine
 		}
 
+		fseek(fp, materialfinishpos, SEEK_SET);
 
+		RETURN_FALSE_IF_FALSE(readFromTableWithFunc(current->FogInfo, 2, 0x2C, &readFog, fp, chunkStart, FogInfoTableOffset));
+		RETURN_FALSE_IF_FALSE(readFromTableWithFunc(current->AlphaTest, 2, 0x08, &readAlphaCompare, fp, chunkStart, AlphaTestTableOffset));
+		RETURN_FALSE_IF_FALSE(readFromTableWithFunc(current->BlendInfo, 2, 0x04, &readBlend, fp, chunkStart, BlendModeTableOffset));
+		RETURN_FALSE_IF_FALSE(readFromTableWithFunc(current->NBTScale, 2, 0x10, &readNBTScale, fp, chunkStart, NBTScaleOffset));
 
-
-
+		*outputArray[mid] = current;
 	}
 
 	return true;
@@ -544,7 +640,7 @@ bool readZCompare(void* _Buffer, FILE* fp)
 
 	fread_e(&ptr->EnableDepthTest, 1, 1, fp);
 	fread_e(&ptr->DepthFunction, 1, 1, fp);
-	fread_e(&ptr->WriteToZBuffer, 1, 1, fp);	
+	fread_e(&ptr->WriteToZBuffer, 1, 1, fp);
 
 	return true;
 }
@@ -580,6 +676,68 @@ bool readLight(void* _Buffer, FILE* fp)
 	fread_e(&ptr->K0, 4, 1, fp);
 	fread_e(&ptr->K1, 4, 1, fp);
 	fread_e(&ptr->K2, 4, 1, fp);
+
+	return true;
+}
+
+bool readFog(void* _Buffer, FILE* fp)
+{
+	RETURN_FALSE_IF_NULL(_Buffer);
+
+	struct Fog* ptr = (struct Fog*)_Buffer;
+
+	fread_e(&ptr->Type, 1, 1, fp);
+	fread_e(&ptr->AdjustEnabled, 1, 1, fp);
+	fread_e(&ptr->AdjustCenter, 2, 1, fp);
+	fread_e(&ptr->StartZ, 4, 1, fp);
+	fread_e(&ptr->EndZ, 4, 1, fp);
+	fread_e(&ptr->NearZ, 4, 1, fp);
+	fread_e(&ptr->FarZ, 4, 1, fp);
+	fread_e(&ptr->StartZ, 4, 1, fp);
+	fread_e(&ptr->Color, 1, 4, fp);
+	fread_e(&ptr->AdjustTable[0], 2, 10, fp);
+
+	return true;
+}
+
+bool readAlphaCompare(void* _Buffer, FILE* fp)
+{
+	RETURN_FALSE_IF_NULL(_Buffer);
+
+	struct AlphaTest* ptr = (struct AlphaTest*)_Buffer;
+
+	fread_e(&ptr->CompareA, 1, 1, fp);
+	fread_e(&ptr->ReferenceA, 1, 1, fp);
+	fread_e(&ptr->Operation, 1, 1, fp);
+	fread_e(&ptr->CompareB, 1, 1, fp);
+	fread_e(&ptr->ReferenceB, 1, 1, fp);
+
+	return true;
+}
+
+bool readBlend(void* _Buffer, FILE* fp)
+{
+	RETURN_FALSE_IF_NULL(_Buffer);
+
+	struct Blend* ptr = (struct Blend*)_Buffer;
+
+	fread_e(&ptr->BlendMode, 1, 1, fp);
+	fread_e(&ptr->BlendSourceFactor, 1, 1, fp);
+	fread_e(&ptr->BlendDestFactor, 1, 1, fp);
+	fread_e(&ptr->BlendLogicOperation, 1, 1, fp);
+
+	return true;
+}
+
+bool readNBTScale(void* _Buffer, FILE* fp)
+{
+	RETURN_FALSE_IF_NULL(_Buffer);
+
+	struct NBT* ptr = (struct NBT*)_Buffer;
+
+	fread_e(&ptr->UNKNOWN, 1, 1, fp);
+	fseek(fp, 3, SEEK_CUR); //padding
+	fread_e(&ptr->Scale, 4, 3, fp);
 
 	return true;
 }

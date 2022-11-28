@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <math.h>
 
 #include "bmd.h"
 #include "vector.h"
@@ -375,15 +376,19 @@ enum GXTexID
 
 enum GXRasterizerChannelID
 {
-	RASTERIZER_COLOR0_ALPHA0 = 0x00,
-	RASTERIZER_COLOR1_ALPHA1 = 0x01,
-	RASTERIZER_ALPHA_BUMP = 0x05,
-
+	RASTERIZER_COLOR0 = 0,
+	RASTERIZER_COLOR1 = 1,
+	RASTERIZER_ALPHA0 = 2,
+	RASTERIZER_ALPHA1 = 3,
+	RASTERIZER_COLOR0A0 = 4,
+	RASTERIZER_COLOR1A1 = 5,
+	RASTERIZER_COLOR_ZERO = 6,
+	RASTERIZER_ALPHA_BUMP = 7,
 	/// <summary>
 	/// Also known as ALPHA_BUMP_N
 	/// </summary>
-	RASTERIZER_ALPHA_NORMAL = 0x06,
-	RASTERIZER_ZERO = 0x07
+	RASTERIZER_ALPHA_BUMPN = 8,
+	RASTERIZER_COLOR_NULL = 0xFF
 };
 
 enum GXConstantColor
@@ -613,10 +618,10 @@ enum GXFogType
 #pragma region Structs
 struct SwapTable
 {
-	enum GXTevColorChannel RED;
-	enum GXTevColorChannel GREEN;
-	enum GXTevColorChannel BLUE;
-	enum GXTevColorChannel ALPHA;
+	unsigned char RED;
+	unsigned char GREEN;
+	unsigned char BLUE;
+	unsigned char ALPHA;
 };
 
 /// <summary>
@@ -827,6 +832,10 @@ bool isTableIndexNULL(size_t IndexSize, FILE* _Stream);
 bool readZCompare(void* _Buffer, FILE* fp);
 bool readChannelControl(void* _Buffer, FILE* fp);
 bool readLight(void* _Buffer, FILE* fp);
+bool readFog(void* _Buffer, FILE* fp);
+bool readAlphaCompare(void* _Buffer, FILE* fp);
+bool readBlend(void* _Buffer, FILE* fp);
+bool readNBTScale(void* _Buffer, FILE* fp);
 //===============================================
 bool writeMAT3(const struct aiScene *data);
 
