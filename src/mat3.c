@@ -513,7 +513,7 @@ bool readMAT3(FILE* fp, struct J3DMaterial*** outputArray, unsigned int* element
 				unsigned char IndStageID;
 				fread(&IndStageID, 1, 1, fp);
 				RETURN_FALSE_IF_NULL(current->IndirectStages[IndStageID]);
-				tev->IndirectStagePtr = &current->IndirectStages[IndStageID];
+				tev->IndirectStagePtr = current->IndirectStages[IndStageID];
 				fread(&tev->IndirectTexFormat, 1, 1, fp);
 				fread(&tev->IndirectTexBias, 1, 1, fp);
 				fread(&tev->IndirectTexMtxID, 1, 1, fp);
