@@ -111,12 +111,12 @@ bool readMAT3(FILE* fp, struct J3DMaterial*** outputArray, unsigned int* element
 		return false;
 
 	//Now to read the materials themselves
-	for (size_t i = 0; i < matCount; i++)
+	for (size_t mid = 0; mid < matCount; mid++)
 	{
 		struct J3DMaterial* current = calloc(1, sizeof(struct J3DMaterial));
 		RETURN_FALSE_IF_NULL(current);
 
-		current->Name = stringTable[i]; //Names ignore the Remap Table
+		current->Name = stringTable[mid]; //Names ignore the Remap Table
 
 
 
@@ -130,7 +130,7 @@ bool readMAT3(FILE* fp, struct J3DMaterial*** outputArray, unsigned int* element
 
 
 
-		fseek(fp, chunkStart + dataOffset + (RemapTable[i] * MATERIAL_ENTRY_SIZE), SEEK_SET);
+		fseek(fp, chunkStart + dataOffset + (RemapTable[mid] * MATERIAL_ENTRY_SIZE), SEEK_SET);
 
 		unsigned char LightChannelCount,
 			TexGenCount,
@@ -379,16 +379,45 @@ bool readMAT3(FILE* fp, struct J3DMaterial*** outputArray, unsigned int* element
 
 			RETURN_FALSE_IF_NULL(tev);
 
+			fseek(fp, chunkStart + TevStageTableOffset + (TevStageIndicies[i] * 0x14), SEEK_SET);
+			unsigned char UNK0;
+			fread_e(&UNK0, 1, 1, fp); //should always just be 0xFF?
+
+			fread_e(&tev->ColorInA, 1, 1, fp);
+			fread_e(&tev->ColorInB, 1, 1, fp);
+			fread_e(&tev->ColorInC, 1, 1, fp);
+			fread_e(&tev->ColorInD, 1, 1, fp);
+			fread_e(&tev->ColorOperation, 1, 1, fp);
+			fread_e(&tev->ColorBias, 1, 1, fp);
+			fread_e(&tev->ColorScale, 1, 1, fp);
+			fread_e(&tev->ColorClamp, 1, 1, fp);
+			fread_e(&tev->ColorOutRegister, 1, 1, fp);
+
+			fread_e(&tev->AlphaInA, 1, 1, fp);
+			fread_e(&tev->AlphaInB, 1, 1, fp);
+			fread_e(&tev->AlphaInC, 1, 1, fp);
+			fread_e(&tev->AlphaInD, 1, 1, fp);
+			fread_e(&tev->AlphaOperation, 1, 1, fp);
+			fread_e(&tev->AlphaBias, 1, 1, fp);
+			fread_e(&tev->AlphaScale, 1, 1, fp);
+			fread_e(&tev->AlphaClamp, 1, 1, fp);
+			fread_e(&tev->AlphaOutRegister, 1, 1, fp);
+
+			//TEV Orders
+			fseek(fp, chunkStart + TevOrderTableOffset + (TevOrderIndicies[i] * 0x04), SEEK_SET);
+			fread_e(&tev->TextureCoordID, 1, 1, fp);
+			fread_e(&tev->TextureMapID, 1, 1, fp);
+			fread_e(&tev->ChannelID, 1, 1, fp);
+
 			tev->ConstantColorSelection = TevConstColSel[i];
 			tev->ConstantAlphaSelection = TevConstAlpSel[i];
 
-
-
+			//Swap Tables
+			tev->RasterizerSwapTable = &current->SwapTables[TevSwapModeSelectionIndicies[i]];
 
 			current->TEVStages[i] = tev; //Tev Stages must exist in order so this is fine
 		}
 
-		//TEV Orders
 
 
 
