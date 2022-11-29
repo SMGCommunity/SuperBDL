@@ -125,14 +125,6 @@ struct JUTTexture **read_tex_json(FILE *fp) {
 			tex[i]->MagnificationFilter = NEAR;
 		else if (!strcmp(magnification_filter, "Linear"))
 			tex[i]->MagnificationFilter = LINEAR;
-		else if (!strcmp(magnification_filter, "NearestMipmapNearest"))
-			tex[i]->MagnificationFilter = NEAR_MIP_NEAR;
-		else if (!strcmp(magnification_filter, "NearestMipmapLinear"))
-			tex[i]->MagnificationFilter = NEAR_MIP_LIN;
-		else if (!strcmp(magnification_filter, "LinearMipmapNearest"))
-			tex[i]->MagnificationFilter = LIN_MIP_NEAR;
-		else if (!strcmp(magnification_filter, "LinearMipmapLinear"))
-			tex[i]->MagnificationFilter = LIN_MIP_LIN;
 
 		// MinLOD
 		tex[i]->MinLOD = json_object_get_double(json_object_object_get(tex_array_obj, "MinLOD"));
