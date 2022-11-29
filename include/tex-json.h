@@ -3,6 +3,6 @@
 
 #include "tex1.h"
 
-bool read_tex_json(FILE *fp, struct JUTTexture *output);
+struct JUTTexture **read_tex_json(FILE *fp);
 
 #endif

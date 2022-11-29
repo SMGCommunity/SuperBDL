@@ -66,7 +66,7 @@ enum GXPaletteFormats
 struct JUTTexture
 {
 	char* Name;
-	enum JUTTransparency AlphaSetting ;
+	enum JUTTransparency AlphaSetting;
 	bool ClampLODBias;
 	bool EnableMipmaps;
 	unsigned char MaxAnisotropy;

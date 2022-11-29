@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
 			output_bdl = false;
 	}
 
-	struct JUTTexture *tex = NULL;
+	struct JUTTexture **tex = NULL;
 	if (tex_path) {
 		FILE *tex_fp = fopen(tex_path, "r");
 
@@ -109,8 +109,8 @@ int main(int argc, char **argv) {
 			return 1;
 		}
 
-		tex = calloc(1, sizeof (struct JUTTexture));
-		if (!read_tex_json(tex_fp, tex)) {
+		tex = read_tex_json(tex_fp);
+		if (!tex) {
 			fprintf(stderr, "Failed to read texture json\n");
 			return 1;
 		}
