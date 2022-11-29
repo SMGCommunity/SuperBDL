@@ -23,10 +23,15 @@ struct JUTTexture **read_tex_json(FILE *fp) {
 	if (!tex_obj)
 		return NULL;
 
-	struct JUTTexture **tex = calloc(json_object_array_length(tex_obj) + 1, sizeof (struct JUTTexture *));
+	size_t array_size = json_object_array_length(tex_obj);
 
-	struct json_object *tex_array_obj;
-	for (int i = 0; (tex_array_obj = json_object_array_get_idx(tex_obj, i)); ++i) {
+	struct JUTTexture **tex = calloc(array_size + 1, sizeof (struct JUTTexture *));
+
+	for (int i = 0; i < array_size; ++i) {
+		struct json_object *tex_array_obj = json_object_array_get_idx(tex_obj, i);
+		if (!tex_array_obj)
+			return NULL;
+
 		tex[i] = calloc(1, sizeof (struct JUTTexture));
 
 		// Name
@@ -48,6 +53,14 @@ struct JUTTexture **read_tex_json(FILE *fp) {
 			tex[i]->Format = RGB5A3;
 		else if (!strcmp(format, "RGBA32"))
 			tex[i]->Format = RGBA32;
+		else if (!strcmp(format, "C4"))
+			tex[i]->Format = C4;
+		else if (!strcmp(format, "C8"))
+			tex[i]->Format = C8;
+		else if (!strcmp(format, "C14X2"))
+			tex[i]->Format = C14X2;
+		else if (!strcmp(format, "CMPR"))
+			tex[i]->Format = CMPR;
 
 		// AlphaSetting
 		tex[i]->AlphaSetting = json_object_get_int(json_object_object_get(tex_array_obj, "AlphaSetting"));
@@ -131,6 +144,7 @@ struct JUTTexture **read_tex_json(FILE *fp) {
 		tex[i]->LODBias = json_object_get_double(json_object_object_get(tex_array_obj, "LodBias"));
 
 		// TODO: read the texture image into memory
+		// TODO: maybe some error checking
 	}
 
 	return tex;
