@@ -39,6 +39,12 @@
     <ClCompile Include="src\endianio.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\tex-json.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mat-json.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\bmd.h">
@@ -81,6 +87,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\endianio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\tex-json.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mat-json.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -15,6 +15,12 @@
 
 #include "bmd.h"
 
+#include "tex1.h"
+#include "tex-json.h"
+
+#include "mat3.h"
+#include "mat-json.h"
+
 #define VERSION "1.0"
 
 static void show_help(void) {
@@ -37,7 +43,7 @@ int main(int argc, char **argv) {
 	for (int i = 1; i < argc; ++i) {
 		if (parsing_args) {
 			if (!strcmp(argv[i], "--version") || !strcmp(argv[i], "-v")) {
-				puts("SuperBDL " VERSION);
+				puts("SuperBDL v" VERSION);
 				return 0;
 			} else if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
 				show_help();
@@ -94,8 +100,23 @@ int main(int argc, char **argv) {
 			output_bdl = false;
 	}
 
-	struct json_object *mat_obj = NULL;
+	struct JUTTexture *tex = NULL;
+	if (tex_path) {
+		FILE *tex_fp = fopen(tex_path, "r");
 
+		if (!tex_fp) {
+			fprintf(stderr, "Failed to open %s: %s\n", tex_path, strerror(errno));
+			return 1;
+		}
+
+		tex = calloc(1, sizeof (struct JUTTexture));
+		if (!read_tex_json(tex_fp, tex)) {
+			fprintf(stderr, "Failed to read texture json\n");
+			return 1;
+		}
+	}
+
+	struct J3DMaterial *mat = NULL;
 	if (mat_path) {
 		FILE *mat_fp = fopen(mat_path, "r");
 
@@ -104,17 +125,11 @@ int main(int argc, char **argv) {
 			return 1;
 		}
 
-		fseek(mat_fp, 0, SEEK_END);
-		size_t mat_size = ftell(mat_fp);
-		fseek(mat_fp, 0, SEEK_SET);
-
-		char *mat = malloc(mat_size);
-
-		fread(mat, mat_size, 1, mat_fp);
-		fclose(mat_fp);
-
-		mat_obj = json_tokener_parse(mat);
-		free(mat);
+		mat = calloc(1, sizeof (struct J3DMaterial));
+		if (!read_mat_json(mat_fp, mat)) {
+			fprintf(stderr, "Failed to read material json\n");
+			return 1;
+		}
 	}
 
 	const struct aiScene *model_data = aiImportFile(input_path, 0);
