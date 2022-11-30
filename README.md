@@ -15,7 +15,6 @@ mkdir C:\src
 cd C:\src
 git clone https://github.com/Microsoft/vcpkg.git
 .\vcpkg\bootstrap-vcpkg.bat
-vcpkg integrate install
 ```
 
 Next, integrate vcpkg for use with MSBuild/Visual Studio. (You may be prompted for administrator privileges.)

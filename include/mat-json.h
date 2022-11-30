@@ -2,7 +2,8 @@
 #define __MAT_JSON_H
 
 #include "mat3.h"
+#include "tex1.h"
 
-bool read_mat_json(FILE *fp, struct J3DMaterial *output);
+struct J3DMaterial **read_mat_json(FILE *fp, struct JUTTexture **tex);
 
 #endif

@@ -114,8 +114,8 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	struct J3DMaterial *mat = NULL;
-	if (mat_path) {
+	struct J3DMaterial **mat = NULL;
+	if (tex_path && mat_path) {
 		FILE *mat_fp = fopen(mat_path, "r");
 
 		if (!mat_fp) {
@@ -123,8 +123,8 @@ int main(int argc, char **argv) {
 			return 1;
 		}
 
-		mat = calloc(1, sizeof (struct J3DMaterial));
-		if (!read_mat_json(mat_fp, mat)) {
+		mat = read_mat_json(mat_fp, tex);
+		if (!mat) {
 			fprintf(stderr, "Failed to read material json\n");
 			return 1;
 		}
