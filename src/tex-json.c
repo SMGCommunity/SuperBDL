@@ -35,7 +35,7 @@ struct JUTTexture **read_tex_json(FILE *fp) {
 		tex[i] = calloc(1, sizeof (struct JUTTexture));
 
 		// Name
-		tex[i]->Name = json_object_get_string(json_object_object_get(tex_array_obj, "Name"));
+		tex[i]->Name = strdup(json_object_get_string(json_object_object_get(tex_array_obj, "Name")));
 
 		// Format
 		const char *format = json_object_get_string(json_object_object_get(tex_array_obj, "Format"));
@@ -61,6 +61,8 @@ struct JUTTexture **read_tex_json(FILE *fp) {
 			tex[i]->Format = C14X2;
 		else if (!strcmp(format, "CMPR"))
 			tex[i]->Format = CMPR;
+		else
+			return NULL;
 
 		// AlphaSetting
 		tex[i]->AlphaSetting = json_object_get_int(json_object_object_get(tex_array_obj, "AlphaSetting"));
@@ -73,6 +75,8 @@ struct JUTTexture **read_tex_json(FILE *fp) {
 			tex[i]->WrapS = REPEAT;
 		else if (!strcmp(wrap_s, "MirroredRepeat"))
 			tex[i]->WrapS = MIRROR;
+		else
+			return NULL;
 
 		// WrapT
 		const char *wrap_t = json_object_get_string(json_object_object_get(tex_array_obj, "WrapT"));
@@ -82,6 +86,8 @@ struct JUTTexture **read_tex_json(FILE *fp) {
 			tex[i]->WrapT = REPEAT;
 		else if (!strcmp(wrap_t, "MirroredRepeat"))
 			tex[i]->WrapT = MIRROR;
+		else
+			return NULL;
 
 		// PaletteFormat
 		const char *palette_format = json_object_get_string(json_object_object_get(tex_array_obj, "PaletteFormat"));
@@ -91,6 +97,8 @@ struct JUTTexture **read_tex_json(FILE *fp) {
 			tex[i]->PaletteFormat = P_RGB565;
 		else if (!strcmp(palette_format, "RGB5A3"))
 			tex[i]->PaletteFormat = P_RGB5A3;
+		else
+			return NULL;
 
 		// MipMap
 		tex[i]->EnableMipmaps = json_object_get_int(json_object_object_get(tex_array_obj, "MipMap"));
@@ -118,6 +126,8 @@ struct JUTTexture **read_tex_json(FILE *fp) {
 			tex[i]->MinificationFilter = LIN_MIP_NEAR;
 		else if (!strcmp(minification_filter, "LinearMipmapLinear"))
 			tex[i]->MinificationFilter = LIN_MIP_LIN;
+		else
+			return NULL;
 
 		// MagFilter
 		const char *magnification_filter = json_object_get_string(json_object_object_get(tex_array_obj, "MagFilter"));
@@ -125,6 +135,8 @@ struct JUTTexture **read_tex_json(FILE *fp) {
 			tex[i]->MagnificationFilter = NEAR;
 		else if (!strcmp(magnification_filter, "Linear"))
 			tex[i]->MagnificationFilter = LINEAR;
+		else
+			return NULL;
 
 		// MinLOD
 		tex[i]->MinLOD = json_object_get_double(json_object_object_get(tex_array_obj, "MinLOD"));

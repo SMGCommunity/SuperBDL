@@ -37,7 +37,7 @@ struct J3DMaterial **read_mat_json(FILE *fp, struct JUTTexture **tex) {
 		mat[i] = calloc(1, sizeof (struct J3DMaterial));
 
 		// Name
-		mat[i]->Name = json_object_get_string(json_object_object_get(mat_array_obj, "Name"));
+		mat[i]->Name = strdup(json_object_get_string(json_object_object_get(mat_array_obj, "Name")));
 
 		// Flag
 
