@@ -1,10 +1,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <sys/param.h>
 
 #include <json.h>
 
+#include "superbdl.h"
 #include "mat3.h"
 #include "tex1.h"
 #include "mat-json.h"
@@ -62,7 +62,7 @@ struct J3DMaterial **read_mat_json(FILE *fp, struct JUTTexture **tex) {
 		// TextureNames
 		struct json_object *texture_array = json_object_object_get(mat_array_obj, "TextureNames");
 		size_t texture_array_size = json_object_array_length(texture_array);
-		for (int j = 0; j < MAX(texture_array_size, 8); ++j) {
+		for (int j = 0; j < min(texture_array_size, 8); ++j) {
 			struct json_object *texture_array_item = json_object_array_get_idx(texture_array, j);
 
 			const char *texture_name_orig = json_object_get_string(texture_array_item);

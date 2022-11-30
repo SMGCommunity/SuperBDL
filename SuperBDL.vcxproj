@@ -138,6 +138,7 @@
     <ClInclude Include="include\matrix.h" />
     <ClInclude Include="include\mdl3.h" />
     <ClInclude Include="include\shp1.h" />
+    <ClInclude Include="include\superbdl.h" />
     <ClInclude Include="include\tex-json.h" />
     <ClInclude Include="include\tex1.h" />
     <ClInclude Include="include\vector.h" />
