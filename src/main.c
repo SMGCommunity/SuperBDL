@@ -8,8 +8,6 @@
 #define strncasecmp _strnicmp
 #endif
 
-#include <json.h>
-
 #include <assimp/scene.h>
 #include <assimp/cimport.h>
 
