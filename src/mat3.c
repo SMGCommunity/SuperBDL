@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdio.h>
+#include <assert.h>
 
 #include "superbdl.h"
 #include "mat3.h"
@@ -148,7 +149,7 @@ bool readMAT3(FILE* fp, struct J3DMaterial*** outputArray, unsigned int* element
 
 		RETURN_FALSE_IF_FALSE(readFromTable(&current->Culling, 1, 4, fp, chunkStart, CullModeInfoOffset));
 		RETURN_FALSE_IF_FALSE(readFromTable(&LightChannelCount, 1, 1, fp, chunkStart, ColorChannelCountTableOffset));
-		//_ASSERT(LightChannelCount <= 0x02);
+		//assert(LightChannelCount <= 0x02);
 		RETURN_FALSE_IF_FALSE(readFromTable(&TexGenCount, 1, 1, fp, chunkStart, TexGenCountTable));
 		RETURN_FALSE_IF_FALSE(readFromTable(&TevStageCount, 1, 1, fp, chunkStart, TevStageCountTableOffset));
 		RETURN_FALSE_IF_FALSE(readFromTable(&current->BlendInfo->TestDepthBeforeTexture, 1, 1, fp, chunkStart, ZEarlyTestTableOffset));
