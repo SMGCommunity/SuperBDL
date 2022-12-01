@@ -91,7 +91,7 @@ bool readJUTTexture(FILE* fp, struct JUTTexture* output)
 	if (output->ImageData == NULL)
 		return false;
 	size_t read = fread_e(output->ImageData, sizeof(char), imageDataSize, fp);
-	output->ImageDataSize = read;
+	output->ImageDataSize = (unsigned int)read;
 	return read == imageDataSize;
 }
 
@@ -149,8 +149,8 @@ int calcImageSize(enum GXImageFormats Format, unsigned short width, unsigned sho
 #pragma warning(disable:4244) //Disable the "Possible loss of Data" error, since loss of data is exactly what we want
 		float BlockCountX = (int)f1;
 		float BlockCountY = (int)f2;
-#pragma warning(default:4244) //Re-enable "Possible loss of Data"
 		int ByteCount = (BlockCountX * (BlockWidth * BlockHeight)) * BlockCountY;
+#pragma warning(default:4244) //Re-enable "Possible loss of Data"
 		if (ByteCount == 0) //There *must* be at least one block per image
 			ByteCount = BlockWidth * BlockHeight;
 

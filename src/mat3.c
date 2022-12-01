@@ -6,6 +6,7 @@
 #include "mat3.h"
 #include "tex1.h"
 
+#pragma warning(disable:4267) //Disable the "Possible loss of Data" error, since I hate visual studio. It's really not possible anyways
 bool readMAT3(FILE* fp, struct J3DMaterial*** outputArray, unsigned int* elementCount, struct JUTTexture*** textureArray)
 {
 	if (elementCount == NULL)
@@ -424,7 +425,7 @@ bool readMAT3(FILE* fp, struct J3DMaterial*** outputArray, unsigned int* element
 			for (size_t i = 0; i < 3; i++)
 			{
 				//IndTexMtx
-				fseek(fp, (size_t)IndTexEntryBase + 0x04 + (size_t)(0x04 * 4) + i * 0x1C, SEEK_SET);
+				fseek(fp, (long long)IndTexEntryBase + 0x04 + (long long)(0x04 * 4) + i * 0x1C, SEEK_SET);
 				union Matrix2x3f matrix;
 				fread(&matrix, 4, 6, fp);
 				unsigned char scalechar;
@@ -508,7 +509,7 @@ bool readMAT3(FILE* fp, struct J3DMaterial*** outputArray, unsigned int* element
 			tev->TextureSwapTable = &current->SwapTables[TexSwapSel];
 
 			//TevIndirect
-			fseek(fp, chunkStart + IndTexEntryBase + 0x04 + (0x04 * 4) + (0x1C * 3) + (0x04 * 4) + i * 0x0C, SEEK_SET);
+			fseek(fp, (long long)chunkStart + IndTexEntryBase + 0x04 + (long long)(0x04 * 4) + (long long)(0x1C * 3) + (long long)(0x04 * 4) + (long long)(i * 0x0C), SEEK_SET);
 			if (HasIndirect)
 			{
 				unsigned char IndStageID;
@@ -546,7 +547,7 @@ bool readFromTable(void* _Buffer, size_t IndexSize, size_t ElementSize, FILE* _S
 {
 	if (isTableIndexNULL(IndexSize, _Stream))
 	{
-		fseek(_Stream, IndexSize, SEEK_CUR);
+		fseek(_Stream, (long)IndexSize, SEEK_CUR);
 		return true;
 	}
 
@@ -575,7 +576,7 @@ bool readFromTableOrDefault(void* _Buffer, size_t IndexSize, size_t ElementSize,
 	if (isTableIndexNULL(IndexSize, _Stream))
 	{
 		memcpy(_Buffer, _Default, DefaultSize);
-		fseek(_Stream, IndexSize, SEEK_CUR);
+		fseek(_Stream, (long)IndexSize, SEEK_CUR);
 		return true;
 	}
 
@@ -858,3 +859,5 @@ bool matcmp(struct J3DMaterial* mat1, struct J3DMaterial* mat2) {
 
 	return true;
 }
+
+#pragma warning(default:4267) //Re-enable "Possible loss of Data"...just in case...
