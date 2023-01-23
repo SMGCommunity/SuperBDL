@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 
 #include <json.h>
 
@@ -8,6 +9,138 @@
 #include "mat3.h"
 #include "tex1.h"
 #include "mat-json.h"
+
+static void parse_channel_control(struct ChannelControl *channel_controls, struct json_object *channel_controls_obj) {
+	channel_controls->LightingEnabled = json_object_get_boolean(json_object_object_get(channel_controls_obj, "Enable"));
+
+	const char *material_color_src_str = json_object_get_string(json_object_object_get(channel_controls_obj, "MaterialSrcColor"));
+	if (!strcmp(material_color_src_str, "Vertex"))
+		channel_controls->MaterialColorSource = SOURCE_VERTEX;
+	else if (!strcmp(material_color_src_str, "Register"))
+		channel_controls->MaterialColorSource = SOURCE_REGISTER;
+
+	const char *light_mask_str = json_object_get_string(json_object_object_get(channel_controls_obj, "LitMask"));
+	if (!strcmp(light_mask_str, "None"))
+		channel_controls->LightMask = 0;
+	else if (!memcmp(light_mask_str, "Light", 5))
+		channel_controls->LightMask = pow(2, atoi(light_mask_str + 5));
+
+	const char *diffuse_function_str = json_object_get_string(json_object_object_get(channel_controls_obj, "DiffuseFunction"));
+	if (!strcmp(diffuse_function_str, "None"))
+		channel_controls->DiffuseFunc = DIFFUSE_NONE;
+	else if (!strcmp(diffuse_function_str, "Signed"))
+		channel_controls->DiffuseFunc = DIFFUSE_SIGNED;
+	else if (!strcmp(diffuse_function_str, "Clamp"))
+		channel_controls->DiffuseFunc = DIFFUSE_CLAMPED;
+
+	const char *attenuation_function_str = json_object_get_string(json_object_object_get(channel_controls_obj, "AttenuationFunction"));
+	if (!strcmp(attenuation_function_str, "Spec"))
+		channel_controls->AttenuationFunc = ATTENUATION_SPECULAR;
+	else if (!strcmp(attenuation_function_str, "Spot"))
+		channel_controls->AttenuationFunc = ATTENUATION_SPOTLIGHT;
+	else if (!strcmp(attenuation_function_str, "None_0") || !strcmp(attenuation_function_str, "None_2"))
+		channel_controls->AttenuationFunc = ATTENUATION_NONE;
+
+	const char *ambient_src_color_str = json_object_get_string(json_object_object_get(channel_controls_obj, "AmbientSrcColor"));
+	if (!strcmp(ambient_src_color_str, "Vertex"))
+		channel_controls->AmbientColorSource = SOURCE_VERTEX;
+	else if (!strcmp(ambient_src_color_str, "Register"))
+		channel_controls->AmbientColorSource = SOURCE_REGISTER;
+}
+
+static void parse_tex_gen(struct TextureGenerator *tex_gen, struct json_object *tex_gen_obj) {
+	const char *tex_gen_type_str = json_object_get_string(json_object_object_get(tex_gen_obj, "Type"));
+	if (!strcmp(tex_gen_type_str, "Matrix3x4"))
+		tex_gen->Type = TEXGENTYPE_MTX3x4;
+	else if (!strcmp(tex_gen_type_str, "Matrix2x4"))
+		tex_gen->Type = TEXGENTYPE_MTX2x4;
+	else if (!strcmp(tex_gen_type_str, "Bump0"))
+		tex_gen->Type = TEXGENTYPE_BUMP0;
+	else if (!strcmp(tex_gen_type_str, "Bump1"))
+		tex_gen->Type = TEXGENTYPE_BUMP1;
+	else if (!strcmp(tex_gen_type_str, "Bump2"))
+		tex_gen->Type = TEXGENTYPE_BUMP2;
+	else if (!strcmp(tex_gen_type_str, "Bump3"))
+		tex_gen->Type = TEXGENTYPE_BUMP3;
+	else if (!strcmp(tex_gen_type_str, "Bump4"))
+		tex_gen->Type = TEXGENTYPE_BUMP4;
+	else if (!strcmp(tex_gen_type_str, "Bump5"))
+		tex_gen->Type = TEXGENTYPE_BUMP5;
+	else if (!strcmp(tex_gen_type_str, "Bump6"))
+		tex_gen->Type = TEXGENTYPE_BUMP6;
+	else if (!strcmp(tex_gen_type_str, "Bump7"))
+		tex_gen->Type = TEXGENTYPE_BUMP7;
+	else if (!strcmp(tex_gen_type_str, "SRTG"))
+		tex_gen->Type = TEXGENTYPE_SRTG;
+
+	const char *tex_gen_src_str = json_object_get_string(json_object_object_get(tex_gen_obj, "Source"));
+	if (!strcmp(tex_gen_src_str, "Position"))
+		tex_gen->Source = TEXGENSRC_POSITION;
+	else if (!strcmp(tex_gen_src_str, "Normal"))
+		tex_gen->Source = TEXGENSRC_NORMAL;
+	else if (!strcmp(tex_gen_src_str, "Binormal"))
+		tex_gen->Source = TEXGENSRC_BINORMAL;
+	else if (!strcmp(tex_gen_src_str, "Tangent"))
+		tex_gen->Source = TEXGENSRC_TANGENT;
+	else if (!strcmp(tex_gen_src_str, "Tex0"))
+		tex_gen->Source = TEXGENSRC_TEXTURE0;
+	else if (!strcmp(tex_gen_src_str, "Tex1"))
+		tex_gen->Source = TEXGENSRC_TEXTURE1;
+	else if (!strcmp(tex_gen_src_str, "Tex2"))
+		tex_gen->Source = TEXGENSRC_TEXTURE2;
+	else if (!strcmp(tex_gen_src_str, "Tex3"))
+		tex_gen->Source = TEXGENSRC_TEXTURE3;
+	else if (!strcmp(tex_gen_src_str, "Tex4"))
+		tex_gen->Source = TEXGENSRC_TEXTURE4;
+	else if (!strcmp(tex_gen_src_str, "Tex5"))
+		tex_gen->Source = TEXGENSRC_TEXTURE5;
+	else if (!strcmp(tex_gen_src_str, "Tex6"))
+		tex_gen->Source = TEXGENSRC_TEXTURE6;
+	else if (!strcmp(tex_gen_src_str, "Tex7"))
+		tex_gen->Source = TEXGENSRC_TEXTURE7;
+	else if (!strcmp(tex_gen_src_str, "TexCoord0"))
+		tex_gen->Source = TEXGENSRC_TEXCOORD0;
+	else if (!strcmp(tex_gen_src_str, "TexCoord1"))
+		tex_gen->Source = TEXGENSRC_TEXCOORD1;
+	else if (!strcmp(tex_gen_src_str, "TexCoord2"))
+		tex_gen->Source = TEXGENSRC_TEXCOORD2;
+	else if (!strcmp(tex_gen_src_str, "TexCoord3"))
+		tex_gen->Source = TEXGENSRC_TEXCOORD3;
+	else if (!strcmp(tex_gen_src_str, "TexCoord4"))
+		tex_gen->Source = TEXGENSRC_TEXCOORD4;
+	else if (!strcmp(tex_gen_src_str, "TexCoord5"))
+		tex_gen->Source = TEXGENSRC_TEXCOORD5;
+	else if (!strcmp(tex_gen_src_str, "TexCoord6"))
+		tex_gen->Source = TEXGENSRC_TEXCOORD6;
+	else if (!strcmp(tex_gen_src_str, "Color0"))
+		tex_gen->Source = TEXGENSRC_COLOR0;
+	else if (!strcmp(tex_gen_src_str, "Color1"))
+		tex_gen->Source = TEXGENSRC_COLOR1;
+
+	const char *tex_gen_matrix_src_str = json_object_get_string(json_object_object_get(tex_gen_obj, "TexMatrixSource"));
+	if (!strcmp(tex_gen_matrix_src_str, "Identity"))
+		tex_gen->Matrix = TEXGENMTX_IDENTITY;
+	else if (!strcmp(tex_gen_matrix_src_str, "TexMtx0"))
+		tex_gen->Matrix = TEXGENMTX_TEXTUREMATRIX0;
+	else if (!strcmp(tex_gen_matrix_src_str, "TexMtx1"))
+		tex_gen->Matrix = TEXGENMTX_TEXTUREMATRIX1;
+	else if (!strcmp(tex_gen_matrix_src_str, "TexMtx2"))
+		tex_gen->Matrix = TEXGENMTX_TEXTUREMATRIX2;
+	else if (!strcmp(tex_gen_matrix_src_str, "TexMtx3"))
+		tex_gen->Matrix = TEXGENMTX_TEXTUREMATRIX3;
+	else if (!strcmp(tex_gen_matrix_src_str, "TexMtx4"))
+		tex_gen->Matrix = TEXGENMTX_TEXTUREMATRIX4;
+	else if (!strcmp(tex_gen_matrix_src_str, "TexMtx5"))
+		tex_gen->Matrix = TEXGENMTX_TEXTUREMATRIX5;
+	else if (!strcmp(tex_gen_matrix_src_str, "TexMtx6"))
+		tex_gen->Matrix = TEXGENMTX_TEXTUREMATRIX6;
+	else if (!strcmp(tex_gen_matrix_src_str, "TexMtx7"))
+		tex_gen->Matrix = TEXGENMTX_TEXTUREMATRIX7;
+	else if (!strcmp(tex_gen_matrix_src_str, "TexMtx8"))
+		tex_gen->Matrix = TEXGENMTX_TEXTUREMATRIX8;
+	else if (!strcmp(tex_gen_matrix_src_str, "TexMtx9"))
+		tex_gen->Matrix = TEXGENMTX_TEXTUREMATRIX9;
+}
 
 struct J3DMaterial **read_mat_json(FILE *fp, struct JUTTexture **tex) {
 	fseek(fp, 0, SEEK_END);
@@ -98,18 +231,16 @@ struct J3DMaterial **read_mat_json(FILE *fp, struct JUTTexture **tex) {
 			struct json_object *tevorders_array_item = json_object_array_get_idx(tevorders_object, j);
 
 			const char *texcoord_str = json_object_get_string(json_object_object_get(tevorders_array_item, "TexCoord"));
-			if (!strcmp(texcoord_str, "Null")) {
+			if (!strcmp(texcoord_str, "Null"))
 				mat[i]->IndirectStages[j]->TexCoordID = TEXTURE_NULL;
-			} else if (!memcmp(texcoord_str, "TexCoord", 8)) {
+			else if (!memcmp(texcoord_str, "TexCoord", 8))
 				mat[i]->IndirectStages[j]->TexCoordID = texcoord_str[8] - '0';
-			}
 
 			const char *texmap_str = json_object_get_string(json_object_object_get(tevorders_array_item, "TexMap"));
-			if (!strcmp(texmap_str, "Null")) {
+			if (!strcmp(texmap_str, "Null"))
 				mat[i]->IndirectStages[j]->TexMapID = TEXTURE_NULL;
-			} else if (!memcmp(texmap_str, "TexMap", 6)) {
+			else if (!memcmp(texmap_str, "TexMap", 6))
 				mat[i]->IndirectStages[j]->TexMapID = texmap_str[6] - '0';
-			}
 		}
 
 		struct json_object *scale_object = json_object_object_get(indtexentry_object, "Scales");
@@ -173,7 +304,7 @@ struct J3DMaterial **read_mat_json(FILE *fp, struct JUTTexture **tex) {
 		for (int j = 0; j < min(ind_matrices_length, 3); ++j) {
 			struct json_object *ind_matrices_array_item = json_object_array_get_idx(ind_matrices, j);
 
-			mat[i]->IndirectTextureMatricies[j].values[0][3] = json_object_get_int(json_object_object_get(ind_matrices_array_item, "Exponent"));
+			mat[i]->IndirectTextureMatricies[j].m03 = json_object_get_int(json_object_object_get(ind_matrices_array_item, "Exponent"));
 
 			struct json_object *ind_matrices_matrix = json_object_object_get(ind_matrices_array_item, "Matrix");
 
@@ -291,6 +422,83 @@ struct J3DMaterial **read_mat_json(FILE *fp, struct JUTTexture **tex) {
 
 		// MaterialColors
 		struct json_object *mat_colors_object = json_object_object_get(mat_array_obj, "MaterialColors");
+		size_t mat_colors_length = json_object_array_length(mat_colors_object);
+
+		for (int j = 0; j < min(mat_colors_length, 2); ++j) {
+			struct json_object *mat_colors_array_item = json_object_array_get_idx(mat_colors_object, j);
+
+			mat[i]->ColorMatRegs[j].r = json_object_get_double(json_object_object_get(mat_colors_array_item, "R")) * 255;
+			mat[i]->ColorMatRegs[j].g = json_object_get_double(json_object_object_get(mat_colors_array_item, "G")) * 255;
+			mat[i]->ColorMatRegs[j].b = json_object_get_double(json_object_object_get(mat_colors_array_item, "B")) * 255;
+			mat[i]->ColorMatRegs[j].a = json_object_get_double(json_object_object_get(mat_colors_array_item, "A")) * 255;
+		}
+
+		// ChannelControls
+		struct json_object *channel_controls_array = json_object_object_get(mat_array_obj, "ChannelControls");
+
+		struct json_object *channel_controls_item_one = json_object_array_get_idx(channel_controls_array, 0);
+		if (!channel_controls_item_one)
+			goto channel_controls_done;
+		mat[i]->LightChannels[0] = calloc(1, sizeof (struct LightChannelControl));
+		mat[i]->LightChannels[0]->Color = calloc(1, sizeof (struct ChannelControl));
+		parse_channel_control(mat[i]->LightChannels[0]->Color, channel_controls_item_one);
+
+		struct json_object *channel_controls_item_two = json_object_array_get_idx(channel_controls_array, 1);
+		if (!channel_controls_item_two)
+			goto channel_controls_done;
+		mat[i]->LightChannels[0]->Alpha = calloc(1, sizeof (struct ChannelControl));
+		parse_channel_control(mat[i]->LightChannels[0]->Alpha, channel_controls_item_two);
+
+		struct json_object *channel_controls_item_three = json_object_array_get_idx(channel_controls_array, 2);
+		if (!channel_controls_item_three)
+			goto channel_controls_done;
+		mat[i]->LightChannels[1] = calloc(1, sizeof (struct LightChannelControl));
+		mat[i]->LightChannels[1]->Color = calloc(1, sizeof (struct ChannelControl));
+		parse_channel_control(mat[i]->LightChannels[1]->Color, channel_controls_item_three);
+
+		struct json_object *channel_controls_item_four = json_object_array_get_idx(channel_controls_array, 3);
+		if (!channel_controls_item_four)
+			goto channel_controls_done;
+		mat[i]->LightChannels[1]->Alpha = calloc(1, sizeof (struct ChannelControl));
+		parse_channel_control(mat[i]->LightChannels[1]->Alpha, channel_controls_item_four);
+channel_controls_done:
+
+		// AmbientColors
+		struct json_object *ambient_colors_array = json_object_object_get(mat_array_obj, "AmbientColors");
+		size_t ambient_colors_length = json_object_array_length(ambient_colors_array);
+
+		for (int j = 0; j < min(ambient_colors_length, 2); ++j) {
+			struct json_object *ambient_colors_array_item = json_object_array_get_idx(ambient_colors_array, j);
+
+			mat[i]->ColorAmbRegs[j].r = json_object_get_double(json_object_object_get(ambient_colors_array_item, "R")) * 255;
+			mat[i]->ColorAmbRegs[j].g = json_object_get_double(json_object_object_get(ambient_colors_array_item, "G")) * 255;
+			mat[i]->ColorAmbRegs[j].b = json_object_get_double(json_object_object_get(ambient_colors_array_item, "B")) * 255;
+			mat[i]->ColorAmbRegs[j].a = json_object_get_double(json_object_object_get(ambient_colors_array_item, "A")) * 255;
+		}
+
+		// TexCoord1Gens
+		struct json_object *tex_gen_array = json_object_object_get(mat_array_obj, "TexCoord1Gens");
+		size_t tex_gen_length = json_object_array_length(tex_gen_array);
+
+		for (int j = 0; j < min(tex_gen_length, 8); ++j) {
+			struct json_object *tex_gen_item = json_object_array_get_idx(tex_gen_array, j);
+			if (tex_gen_item) {
+				mat[i]->TextureGenerators[j] = calloc(1, sizeof (struct TextureGenerator));
+				parse_tex_gen(mat[i]->TextureGenerators[j], tex_gen_item);
+			}
+		}
+
+		// PostTexCoordGens
+		struct json_object *post_tex_gen_array = json_object_object_get(mat_array_obj, "PostTexCoordGens");
+		size_t post_tex_gen_length = json_object_array_length(post_tex_gen_array);
+
+		for (int j = 0; j < min(post_tex_gen_length, 8); ++j) {
+			struct json_object *post_tex_gen_item = json_object_array_get_idx(post_tex_gen_array, j);
+			if (post_tex_gen_item) {
+				mat[i]->PostTextureGenerators[j] = calloc(1, sizeof (struct TextureGenerator));
+				parse_tex_gen(mat[i]->PostTextureGenerators[j], post_tex_gen_item);
+			}
+		}
 	}
 
 	return mat;

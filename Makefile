@@ -14,4 +14,4 @@ clean:
 	rm -rf $(TARGET)
 
 $(TARGET): $(C_FILES)
-	$(CC) $(CFLAGS) -I $(INCLUDE_DIR) `pkg-config --cflags --libs json-c assimp` -o $@ $(C_FILES)
+	$(CC) $(CFLAGS) -I $(INCLUDE_DIR) `pkg-config --cflags --libs json-c assimp` -lm -o $@ $(C_FILES)
