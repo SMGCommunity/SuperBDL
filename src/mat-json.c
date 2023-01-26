@@ -213,6 +213,117 @@ static void parse_combine_color(enum GXCombineColor *combine_color, const char *
 		*combine_color = COMBINECOLOR_ZERO;
 }
 
+static void parse_combine_alpha(enum GXCombineAlpha *combine_alpha, const char *combine_alpha_str) {
+	if (!strcmp(combine_alpha_str, "AlphaPrev"))
+		*combine_alpha = COMBINEALPHA_ALPHAPREVIOUS;
+	else if (!strcmp(combine_alpha_str, "A0"))
+		*combine_alpha = COMBINEALPHA_ALPHAREGISTER0;
+	else if (!strcmp(combine_alpha_str, "A1"))
+		*combine_alpha = COMBINEALPHA_ALPHAREGISTER1;
+	else if (!strcmp(combine_alpha_str, "A2"))
+		*combine_alpha = COMBINEALPHA_ALPHAREGISTER2;
+	else if (!strcmp(combine_alpha_str, "TexAlpha"))
+		*combine_alpha = COMBINEALPHA_TEXTUREALPHA;
+	else if (!strcmp(combine_alpha_str, "RasAlpha"))
+		*combine_alpha = COMBINEALPHA_RASTERIZERALPHA;
+	else if (!strcmp(combine_alpha_str, "Konst"))
+		*combine_alpha = COMBINEALPHA_CONSTANTSELECTION;
+	else if (!strcmp(combine_alpha_str, "Zero"))
+		*combine_alpha = COMBINEALPHA_ZERO;
+}
+
+static void parse_tev_op(enum GXTevOp *tev_op, const char *tev_op_str) {
+	if (!strcmp(tev_op_str, "Add"))
+		*tev_op = OPERATION_ADD;
+	else if (!strcmp(tev_op_str, "Sub"))
+		*tev_op = OPERATION_SUB;
+	else if (!strcmp(tev_op_str, "Comp_R8_GT"))
+		*tev_op = OPERATION_COMP_R8_GT;
+	else if (!strcmp(tev_op_str, "Comp_R8_EQ"))
+		*tev_op = OPERATION_COMP_R8_EQ;
+	else if (!strcmp(tev_op_str, "Comp_GR16_GT"))
+		*tev_op = OPERATION_COMP_GR16_GT;
+	else if (!strcmp(tev_op_str, "Comp_GR16_EQ"))
+		*tev_op = OPERATION_COMP_GR16_EQ;
+	else if (!strcmp(tev_op_str, "Comp_BGR24_GT"))
+		*tev_op = OPERATION_COMP_BGR24_GT;
+	else if (!strcmp(tev_op_str, "Comp_BGR24_EQ"))
+		*tev_op = OPERATION_COMP_BGR24_EQ;
+	else if (!strcmp(tev_op_str, "Comp_RGB8_GT") || !strcmp(tev_op_str, "Comp_A8_GT"))
+		*tev_op = OPERATION_COMP_RGB8_GT;
+	else if (!strcmp(tev_op_str, "Comp_RGB8_EQ") || !strcmp(tev_op_str, "Comp_A8_EQ"))
+		*tev_op = OPERATION_COMP_RGB8_EQ;
+}
+
+static void parse_tev_bias(enum GXTevBias *tev_bias, const char *tev_bias_str) {
+	if (!strcmp(tev_bias_str, "Zero"))
+		*tev_bias = BIAS_ZERO;
+	else if (!strcmp(tev_bias_str, "AddHalf"))
+		*tev_bias = BIAS_ADDHALF;
+	else if (!strcmp(tev_bias_str, "SubHalf"))
+		*tev_bias = BIAS_SUBHALF;
+}
+
+static void parse_tev_scale(enum GXTevScale *tev_scale, const char *tev_scale_str) {
+	if (!strcmp(tev_scale_str, "Scale_1"))
+		*tev_scale = SCALE_SCALE_1;
+	else if (!strcmp(tev_scale_str, "Scale_2"))
+		*tev_scale = SCALE_SCALE_2;
+	else if (!strcmp(tev_scale_str, "Scale_4"))
+		*tev_scale = SCALE_SCALE_4;
+	else if (!strcmp(tev_scale_str, "Divide_2"))
+		*tev_scale = SCALE_DIVIDE_2;
+}
+
+static void parse_tev_reg_id(enum GXRegister *tev_reg_id, const char *tev_reg_id_str) {
+	if (!strcmp(tev_reg_id_str, "TevPrev"))
+		*tev_reg_id = REGISTER_PREVIOUS;
+	else if (!strcmp(tev_reg_id_str, "TevReg0"))
+		*tev_reg_id = REGISTER_0;
+	else if (!strcmp(tev_reg_id_str, "TevReg1"))
+		*tev_reg_id = REGISTER_1;
+	else if (!strcmp(tev_reg_id_str, "TevReg2"))
+		*tev_reg_id = REGISTER_2;
+}
+
+static void parse_compare_mode(enum GXCompareType *compare_mode, const char *compare_mode_str) {
+	if (!strcmp(compare_mode_str, "Never"))
+		*compare_mode = ALPHACOMP_NEVER;
+	else if (!strcmp(compare_mode_str, "Less"))
+		*compare_mode = ALPHACOMP_LESS;
+	else if (!strcmp(compare_mode_str, "Equal"))
+		*compare_mode = ALPHACOMP_EQUAL;
+	else if (!strcmp(compare_mode_str, "LEqual"))
+		*compare_mode = ALPHACOMP_LESSEQUAL;
+	else if (!strcmp(compare_mode_str, "Greater"))
+		*compare_mode = ALPHACOMP_GREATER;
+	else if (!strcmp(compare_mode_str, "NEqual"))
+		*compare_mode = ALPHACOMP_NOTEQUAL;
+	else if (!strcmp(compare_mode_str, "GEqual"))
+		*compare_mode = ALPHACOMP_GREATEQUAL;
+	else if (!strcmp(compare_mode_str, "Always"))
+		*compare_mode = ALPHACOMP_ALWAYS;
+}
+
+static void parse_blend_factor(enum GXBlendFactor *blend_factor, const char *blend_factor_str) {
+	if (!strcmp(blend_factor_str, "Zero"))
+		*blend_factor = BLENDFACTOR_ZERO;
+	else if (!strcmp(blend_factor_str, "One"))
+		*blend_factor = BLENDFACTOR_ONE;
+	else if (!strcmp(blend_factor_str, "SrcColor"))
+		*blend_factor = BLENDFACTOR_SOURCECOLOR;
+	else if (!strcmp(blend_factor_str, "InverseSrcColor"))
+		*blend_factor = BLENDFACTOR_SOURCECOLOR_INVERSE;
+	else if (!strcmp(blend_factor_str, "SrcAlpha"))
+		*blend_factor = BLENDFACTOR_SOURCEALPHA;
+	else if (!strcmp(blend_factor_str, "InverseSrcAlpha"))
+		*blend_factor = BLENDFACTOR_SOURCEALPHA_INVERSE;
+	else if (!strcmp(blend_factor_str, "DstAlpha"))
+		*blend_factor = BLENDFACTOR_DESTALPHA;
+	else if (!strcmp(blend_factor_str, "InverseDstAlpha"))
+		*blend_factor = BLENDFACTOR_DESTALPHA_INVERSE;
+}
+
 struct J3DMaterial **read_mat_json(FILE *fp, struct JUTTexture **tex) {
 	fseek(fp, 0, SEEK_END);
 	size_t mat_size = ftell(fp);
@@ -813,46 +924,152 @@ channel_controls_done:
 			parse_combine_color(&mat[i]->TEVStages[j]->ColorInC, json_object_get_string(json_object_object_get(tev_stages_array_item, "ColorInC")));
 			parse_combine_color(&mat[i]->TEVStages[j]->ColorInD, json_object_get_string(json_object_object_get(tev_stages_array_item, "ColorInD")));
 
-			const char *color_op_str = json_object_get_string(json_object_object_get(tev_stages_array_item, "ColorOp"));
-			if (!strcmp(color_op_str, "Add"))
-				mat[i]->TEVStages[j]->ColorOperation = OPERATION_ADD;
-			else if (!strcmp(color_op_str, "Sub"))
-				mat[i]->TEVStages[j]->ColorOperation = OPERATION_SUB;
-			else if (!strcmp(color_op_str, "Comp_R8_GT"))
-				mat[i]->TEVStages[j]->ColorOperation = OPERATION_COMP_R8_GT;
-			else if (!strcmp(color_op_str, "Comp_R8_EQ"))
-				mat[i]->TEVStages[j]->ColorOperation = OPERATION_COMP_R8_EQ;
-			else if (!strcmp(color_op_str, "Comp_GR16_GT"))
-				mat[i]->TEVStages[j]->ColorOperation = OPERATION_COMP_GR16_GT;
-			else if (!strcmp(color_op_str, "Comp_GR16_EQ"))
-				mat[i]->TEVStages[j]->ColorOperation = OPERATION_COMP_GR16_EQ;
-			else if (!strcmp(color_op_str, "Comp_BGR24_GT"))
-				mat[i]->TEVStages[j]->ColorOperation = OPERATION_COMP_BGR24_GT;
-			else if (!strcmp(color_op_str, "Comp_BGR24_EQ"))
-				mat[i]->TEVStages[j]->ColorOperation = OPERATION_COMP_BGR24_EQ;
-			else if (!strcmp(color_op_str, "Comp_RGB8_GT") || !strcmp(color_op_str, "Comp_A8_GT"))
-				mat[i]->TEVStages[j]->ColorOperation = OPERATION_COMP_RGB8_GT;
-			else if (!strcmp(color_op_str, "Comp_RGB8_EQ") || !strcmp(color_op_str, "Comp_A8_EQ"))
-				mat[i]->TEVStages[j]->ColorOperation = OPERATION_COMP_RGB8_EQ;
+			parse_tev_op(&mat[i]->TEVStages[j]->ColorOperation, json_object_get_string(json_object_object_get(tev_stages_array_item, "ColorOp")));
 
-			const char *color_bias_str = json_object_get_string(json_object_object_get(tev_stages_array_item, "ColorBias"));
-			if (!strcmp(color_bias_str, "Zero"))
-				mat[i]->TEVStages[j]->ColorBias = BIAS_ZERO;
-			else if (!strcmp(color_bias_str, "AddHalf"))
-				mat[i]->TEVStages[j]->ColorBias = BIAS_ADDHALF;
-			else if (!strcmp(color_bias_str, "SubHalf"))
-				mat[i]->TEVStages[j]->ColorBias = BIAS_SUBHALF;
+			parse_tev_bias(&mat[i]->TEVStages[j]->ColorBias, json_object_get_string(json_object_object_get(tev_stages_array_item, "ColorBias")));
 
-			const char *color_scale_str = json_object_get_string(json_object_object_get(tev_stages_array_item, "ColorScale"));
-			if (!strcmp(color_scale_str, "Scale_1"))
-				mat[i]->TEVStages[j]->ColorScale = SCALE_SCALE_1;
-			else if (!strcmp(color_scale_str, "Scale_2"))
-				mat[i]->TEVStages[j]->ColorScale = SCALE_SCALE_2;
-			else if (!strcmp(color_scale_str, "Scale_4"))
-				mat[i]->TEVStages[j]->ColorScale = SCALE_SCALE_4;
-			else if (!strcmp(color_scale_str, "Divide_2"))
-				mat[i]->TEVStages[j]->ColorScale = SCALE_DIVIDE_2;
+			parse_tev_scale(&mat[i]->TEVStages[j]->ColorScale, json_object_get_string(json_object_object_get(tev_stages_array_item, "ColorScale")));
+
+			mat[i]->TEVStages[j]->ColorClamp = json_object_get_boolean(json_object_object_get(tev_stages_array_item, "ColorClamp"));
+
+			parse_tev_reg_id(&mat[i]->TEVStages[j]->ColorOutRegister, json_object_get_string(json_object_object_get(tev_stages_array_item, "ColorRegId")));
+
+			parse_combine_alpha(&mat[i]->TEVStages[j]->AlphaInA, json_object_get_string(json_object_object_get(tev_stages_array_item, "AlphaInA")));
+			parse_combine_alpha(&mat[i]->TEVStages[j]->AlphaInB, json_object_get_string(json_object_object_get(tev_stages_array_item, "AlphaInB")));
+			parse_combine_alpha(&mat[i]->TEVStages[j]->AlphaInC, json_object_get_string(json_object_object_get(tev_stages_array_item, "AlphaInC")));
+			parse_combine_alpha(&mat[i]->TEVStages[j]->AlphaInD, json_object_get_string(json_object_object_get(tev_stages_array_item, "AlphaInD")));
+
+			parse_tev_op(&mat[i]->TEVStages[j]->AlphaOperation, json_object_get_string(json_object_object_get(tev_stages_array_item, "AlphaOp")));
+
+			parse_tev_bias(&mat[i]->TEVStages[j]->AlphaBias, json_object_get_string(json_object_object_get(tev_stages_array_item, "AlphaBias")));
+
+			parse_tev_scale(&mat[i]->TEVStages[j]->AlphaScale, json_object_get_string(json_object_object_get(tev_stages_array_item, "AlphaScale")));
+
+			mat[i]->TEVStages[j]->AlphaClamp = json_object_get_boolean(json_object_object_get(tev_stages_array_item, "AlphaClamp"));
+
+			parse_tev_reg_id(&mat[i]->TEVStages[j]->AlphaOutRegister, json_object_get_string(json_object_object_get(tev_stages_array_item, "AlphaRegId")));
 		}
+
+		// FogInfo
+		struct json_object *fog_info_obj = json_object_object_get(mat_array_obj, "FogInfo");
+		mat[i]->FogInfo = calloc(1, sizeof (struct Fog));
+
+		mat[i]->FogInfo->Type = json_object_get_int(json_object_object_get(fog_info_obj, "Type"));
+		mat[i]->FogInfo->AdjustEnabled = json_object_get_boolean(json_object_object_get(fog_info_obj, "Enable"));
+		mat[i]->FogInfo->StartZ = json_object_get_double(json_object_object_get(fog_info_obj, "StartZ"));
+		mat[i]->FogInfo->EndZ = json_object_get_double(json_object_object_get(fog_info_obj, "EndZ"));
+		mat[i]->FogInfo->NearZ = json_object_get_double(json_object_object_get(fog_info_obj, "NearZ"));
+		mat[i]->FogInfo->FarZ = json_object_get_double(json_object_object_get(fog_info_obj, "FarZ"));
+
+		struct json_object *fog_info_color = json_object_object_get(fog_info_obj, "Color");
+
+		mat[i]->FogInfo->Color.r = json_object_get_double(json_object_object_get(fog_info_color, "R"));
+		mat[i]->FogInfo->Color.g = json_object_get_double(json_object_object_get(fog_info_color, "G"));
+		mat[i]->FogInfo->Color.b = json_object_get_double(json_object_object_get(fog_info_color, "B"));
+		mat[i]->FogInfo->Color.a = json_object_get_double(json_object_object_get(fog_info_color, "A"));
+
+		struct json_object *range_adjustment_table_array = json_object_object_get(fog_info_obj, "RangeAdjustmentTable");
+		size_t range_adjustment_table_length = json_object_array_length(range_adjustment_table_array);
+
+		for (int j = 0; j < min(range_adjustment_table_length, 10); ++j) {
+			struct json_object *range_adjustment_table_item = json_object_array_get_idx(range_adjustment_table_array, j);
+
+			mat[i]->FogInfo->AdjustTable[j] = json_object_get_double(range_adjustment_table_item) * 256;
+		}
+
+		// AlphCompare
+		struct json_object *alpha_compare_obj = json_object_object_get(mat_array_obj, "AlphCompare");
+
+		mat[i]->AlphaTest = calloc(1, sizeof (struct AlphaTest));
+
+		parse_compare_mode(&mat[i]->AlphaTest->CompareA, json_object_get_string(json_object_object_get(alpha_compare_obj, "Comp0")));
+
+		mat[i]->AlphaTest->ReferenceA = json_object_get_int(json_object_object_get(alpha_compare_obj, "Reference0"));
+
+		const char *operation_str = json_object_get_string(json_object_object_get(alpha_compare_obj, "Operation"));
+		if (!strcmp(operation_str, "And"))
+			mat[i]->AlphaTest->Operation = ALPHAOP_AND;
+		else if (!strcmp(operation_str, "Or"))
+			mat[i]->AlphaTest->Operation = ALPHAOP_OR;
+		else if (!strcmp(operation_str, "XOR"))
+			mat[i]->AlphaTest->Operation = ALPHAOP_XOR;
+		else if (!strcmp(operation_str, "XNOR"))
+			mat[i]->AlphaTest->Operation = ALPHAOP_XNOR;
+
+		parse_compare_mode(&mat[i]->AlphaTest->CompareB, json_object_get_string(json_object_object_get(alpha_compare_obj, "Comp1")));
+
+		mat[i]->AlphaTest->ReferenceB = json_object_get_int(json_object_object_get(alpha_compare_obj, "Reference1"));
+
+		// BMode
+		struct json_object *bmode_obj = json_object_object_get(mat_array_obj, "BMode");
+
+		mat[i]->BlendInfo = calloc(1, sizeof (struct Blend));
+
+		const char *blend_type_str = json_object_get_string(json_object_object_get(bmode_obj, "Type"));
+		if (!strcmp(blend_type_str, "None"))
+			mat[i]->BlendInfo->BlendMode = BLENDOP_NONE;
+		else if (!strcmp(blend_type_str, "Blend"))
+			mat[i]->BlendInfo->BlendMode = BLENDOP_BLEND;
+		else if (!strcmp(blend_type_str, "Logic"))
+			mat[i]->BlendInfo->BlendMode = BLENDOP_LOGIC;
+		else if (!strcmp(blend_type_str, "Subtract"))
+			mat[i]->BlendInfo->BlendMode = BLENDOP_SUBTRACT;
+
+		parse_blend_factor(&mat[i]->BlendInfo->BlendSourceFactor, json_object_get_string(json_object_object_get(bmode_obj, "SourceFact")));
+		parse_blend_factor(&mat[i]->BlendInfo->BlendDestFactor, json_object_get_string(json_object_object_get(bmode_obj, "DestinationFact")));
+
+		const char *blend_operation_str = json_object_get_string(json_object_object_get(bmode_obj, "Operation"));
+		if (!strcmp(blend_operation_str, "Clear"))
+			mat[i]->BlendInfo->BlendLogicOperation = LOGICOP_CLEAR;
+		else if (!strcmp(blend_operation_str, "And"))
+			mat[i]->BlendInfo->BlendLogicOperation = LOGICOP_AND;
+		else if (!strcmp(blend_operation_str, "Copy"))
+			mat[i]->BlendInfo->BlendLogicOperation = LOGICOP_COPY;
+		else if (!strcmp(blend_operation_str, "Equiv"))
+			mat[i]->BlendInfo->BlendLogicOperation = LOGICOP_EQUIV;
+		else if (!strcmp(blend_operation_str, "Inv"))
+			mat[i]->BlendInfo->BlendLogicOperation = LOGICOP_INV;
+		else if (!strcmp(blend_operation_str, "InvAnd"))
+			mat[i]->BlendInfo->BlendLogicOperation = LOGICOP_INVAND;
+		else if (!strcmp(blend_operation_str, "InvCopy"))
+			mat[i]->BlendInfo->BlendLogicOperation = LOGICOP_INVCOPY;
+		else if (!strcmp(blend_operation_str, "InvOr"))
+			mat[i]->BlendInfo->BlendLogicOperation = LOGICOP_INVOR;
+		else if (!strcmp(blend_operation_str, "NAnd"))
+			mat[i]->BlendInfo->BlendLogicOperation = LOGICOP_NAND;
+		else if (!strcmp(blend_operation_str, "NoOp"))
+			mat[i]->BlendInfo->BlendLogicOperation = LOGICOP_NOOP;
+		else if (!strcmp(blend_operation_str, "NOr"))
+			mat[i]->BlendInfo->BlendLogicOperation = LOGICOP_NOR;
+		else if (!strcmp(blend_operation_str, "Or"))
+			mat[i]->BlendInfo->BlendLogicOperation = LOGICOP_OR;
+		else if (!strcmp(blend_operation_str, "RevAnd"))
+			mat[i]->BlendInfo->BlendLogicOperation = LOGICOP_REVAND;
+		else if (!strcmp(blend_operation_str, "RevOr"))
+			mat[i]->BlendInfo->BlendLogicOperation = LOGICOP_REVOR;
+		else if (!strcmp(blend_operation_str, "Set"))
+			mat[i]->BlendInfo->BlendLogicOperation = LOGICOP_SET;
+		else if (!strcmp(blend_operation_str, "XOr"))
+			mat[i]->BlendInfo->BlendLogicOperation = LOGICOP_XOR;
+
+		// ZMode
+		struct json_object *zmode_obj = json_object_object_get(mat_array_obj, "ZMode");
+
+		mat[i]->BlendInfo->EnableDepthTest = json_object_get_boolean(json_object_object_get(zmode_obj, "Enable"));
+		parse_compare_mode(&mat[i]->BlendInfo->DepthFunction, json_object_get_string(json_object_object_get(zmode_obj, "Function")));
+		mat[i]->BlendInfo->WriteToZBuffer = json_object_get_boolean(json_object_object_get(zmode_obj, "UpdateEnable"));
+
+		// NBTScale
+		struct json_object *nbtscale_obj = json_object_object_get(mat_array_obj, "NBTScale");
+
+		mat[i]->NBTScale = calloc(1, sizeof (struct NBT));
+		mat[i]->NBTScale->UNKNOWN = json_object_get_int(json_object_object_get(nbtscale_obj, "Unknown1"));
+
+		struct json_object *nbtscale_scale_array = json_object_object_get(nbtscale_obj, "Scale");
+		size_t nbtscale_scale_length = json_object_array_length(nbtscale_scale_array);
+
+		for (int j = 0; j < min(nbtscale_scale_length, 3); ++j)
+			mat[i]->NBTScale->Scale.values[j] = json_object_get_double(json_object_array_get_idx(nbtscale_scale_array, j));
 	}
 
 	return mat;
