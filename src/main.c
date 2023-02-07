@@ -25,11 +25,16 @@ static void show_help(void) {
 	puts("placeholder help text");
 }
 
+enum J3DImportOptimizations calculate_optimizations(int argc, char** argv)
+{
+
+}
+
 int main(int argc, char **argv) {
 	bool format_forced = false;
 	bool output_bdl = true;
 	bool sm3das = false;
-	bool optimize = false; //Optimizing the model is very much a thing that we could look into doing...
+	enum J3DImportOptimizations optimizationFlags;
 	const char *input_path = NULL;
 	const char *output_path = NULL;
 	const char *mat_path = NULL;
@@ -55,9 +60,7 @@ int main(int argc, char **argv) {
 			} else if (!strcmp(argv[i], "--sm3das")) {
 				output_bdl = true; // implies --bdl
 				sm3das = true;
-			} else if (!strcmp(argv[i], "--optimize") || !strcmp(argv[i], "-O") || !strcmp(argv[i], "-O2")) {
-				optimize = true;
-			} else if (!strcmp(argv[i], "--mat") || !strcmp(argv[i], "-m")) {
+			}else if (!strcmp(argv[i], "--mat") || !strcmp(argv[i], "-m")) {
 				mat_path = argv[++i];
 			} else if (!strcmp(argv[i], "--tex") || !strcmp(argv[i], "-t")) {
 				tex_path = argv[++i];
@@ -78,6 +81,8 @@ int main(int argc, char **argv) {
 				output_path = argv[i];
 		}
 	}
+
+	optimizationFlags = calculate_optimizations(argc, argv);
 
 	if (!input_path) {
 		fputs("Missing input and output path\n", stderr);
