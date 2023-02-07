@@ -73,5 +73,6 @@ struct rgba_image read_png(FILE *png_fp) {
 		.width = width,
 		.height = height,
 		.pixels = buf,
+		.nextMipmap = NULL
 	};
 }
