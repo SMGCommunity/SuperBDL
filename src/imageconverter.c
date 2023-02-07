@@ -8,7 +8,7 @@ enum GXImageFormats calculateBestImageFormat(struct rgba_image* sourceImage)
 	bool IsGrayscale = true;
 	bool HasAlpha = false;
 	bool HasFullAlpha = false;
-	bool ShouldBeCompressed = true; //TODO: Make this based on optimization flags!
+	bool ShouldBeCompressed = false; //TODO: Make this based on optimization flags!
 
 	for (size_t y = 0; y < sourceImage->height; y++)
 	{
