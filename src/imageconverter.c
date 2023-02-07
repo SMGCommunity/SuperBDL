@@ -2,8 +2,53 @@
 
 enum GXImageFormats calculateBestImageFormat(struct rgba_image* sourceImage)
 {
-	//TODO: figure this out...
-	return RGBA32;
+	//TODO: Make all of these based on optimization flags!
+	bool IsLimitedRange = true;
+	bool IsLimitedAlpha = true;
+	bool IsGrayscale = true;
+	bool HasAlpha = false;
+	bool HasFullAlpha = false;
+	bool ShouldBeCompressed = true; //TODO: Make this based on optimization flags!
+
+	for (size_t y = 0; y < sourceImage->height; y++)
+	{
+		for (size_t x = 0; x < sourceImage->width; x++)
+		{
+			union Vector4uc CurrentPixel = sourceImage->PIXELACCESS(x,y);
+
+			if (IsGrayscale && !ISGRAYSCALE(CurrentPixel))
+				IsGrayscale = false;
+
+			if (IsGrayscale && IsLimitedRange)
+			{
+				if (CurrentPixel.r % 0x11 > 0)
+					IsLimitedRange = false;
+				if (CurrentPixel.g % 0x11 > 0)
+					IsLimitedRange = false;
+				if (CurrentPixel.b % 0x11 > 0)
+					IsLimitedRange = false;
+			}
+
+			if (CurrentPixel.a != 0xFF)
+			{
+				HasAlpha = true;
+				if (CurrentPixel.a != 0 && (CurrentPixel.a % 0x20 > 0))
+					HasFullAlpha = true;
+
+				if ((CurrentPixel.a % 0x11) > 0)
+					IsLimitedAlpha = false;
+			}
+		}
+	}
+
+	if (IsGrayscale && !HasAlpha)
+		return IsLimitedRange ? I4 : I8;
+	else if (IsGrayscale && HasAlpha)
+		return IsLimitedRange ? IA4 : IA8;
+	else if (!IsGrayscale && !HasAlpha)
+		return RGB565;
+	else
+		return (ShouldBeCompressed && !HasFullAlpha) ? CMPR : (HasFullAlpha ? RGBA32 : RGB5A3);
 }
 
 

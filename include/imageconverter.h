@@ -7,6 +7,7 @@
 #include "tex1.h"
 
 enum GXImageFormats calculateBestImageFormat(struct rgba_image* sourceImage);
+
 unsigned int calculateImageBufferSize(struct rgba_image* sourceImage, enum GXImageFormats imageFormatTarget);
 unsigned int calculateImageBufferSize_4Bit(struct rgba_image* sourceImage);
 unsigned int calculateImageBufferSize_8Bit(struct rgba_image* sourceImage);

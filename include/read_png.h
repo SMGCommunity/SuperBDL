@@ -6,6 +6,9 @@
 
 #include "vector.h"
 
+//4 for RGBA32
+#define STRIDE 4
+
 //pixels[y][x] for a given pixel
 //*pixels for a straight array
 struct rgba_image {
@@ -20,5 +23,7 @@ struct rgba_image {
 struct rgba_image read_png(FILE *png_fp);
 
 #define PIXELACCESS(x, y) pixels[y][x]
+#define PIXELCOUNT size / STRIDE
+#define ISGRAYSCALE(pixel) (pixel.r == pixel.g && pixel.g == pixel.b)
 
 #endif /* __READ_PNG_H */
