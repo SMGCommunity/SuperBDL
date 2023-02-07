@@ -1,30 +1,29 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
 
 #include <png.h>
 
 #include "vector.h"
+#include "read_png.h"
 
-union Vector4uc **read_png(FILE *png_fp, size_t *image_size, unsigned int *width, unsigned int *height) {
+struct rgba_image read_png(FILE *png_fp) {
 	unsigned char header[8];
 
 	fread(header, 1, 8, png_fp);
 
 	if (png_sig_cmp(header, 0, 8))
-		return NULL;
+		return (struct rgba_image) { 0 };
 
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-
 	if (!png_ptr)
-		return NULL;
+		return (struct rgba_image) { 0 };
 
 	png_infop info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr)
-		return NULL;
+		return (struct rgba_image) { 0 };
 
 	if (setjmp(png_jmpbuf(png_ptr)))
-		return NULL;
+		return (struct rgba_image) { 0 };
 
 	png_init_io(png_ptr, png_fp);
 	png_set_sig_bytes(png_ptr, 8);
@@ -39,25 +38,26 @@ union Vector4uc **read_png(FILE *png_fp, size_t *image_size, unsigned int *width
 
 	png_read_update_info(png_ptr, info_ptr);
 
-	*width = png_get_image_width(png_ptr, info_ptr);
-	*height = png_get_image_height(png_ptr, info_ptr);
+	unsigned int width = png_get_image_width(png_ptr, info_ptr);
+	unsigned int height = png_get_image_height(png_ptr, info_ptr);
 
 	if (setjmp(png_jmpbuf(png_ptr)))
-		return NULL;
+		return (struct rgba_image) { 0 };
 
-	*image_size = 0;
-	size_t *sizes_array = malloc(sizeof (size_t *) * *height);
+	size_t size = 0;
+	size_t *sizes_array = malloc(sizeof (size_t *) * height);
 
-	for (int y = 0; y < *height; ++y) {
+	for (int y = 0; y < height; ++y) {
 		sizes_array[y] = png_get_rowbytes(png_ptr, info_ptr);
-		*image_size += sizes_array[y];
+		size += sizes_array[y];
 	}
 
-	void *buf = malloc(sizeof (png_bytep) * *height + *image_size);
+	void *buf = malloc(sizeof (png_bytep) * height + size);
 	png_bytepp pixels_array = buf;
-	png_bytep pixels = buf + sizeof (png_bytep) * *height;
+	png_bytep pixels = buf;
+	pixels += sizeof (png_bytep) * height;
 
-	for (int y = 0; y < *height; ++y) {
+	for (int y = 0; y < height; ++y) {
 		pixels_array[y] = pixels;
 		pixels += sizes_array[y];
 	}
@@ -68,5 +68,10 @@ union Vector4uc **read_png(FILE *png_fp, size_t *image_size, unsigned int *width
 
 	png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
 
-	return buf;
+	return (struct rgba_image) {
+		.size = size,
+		.width = width,
+		.height = height,
+		.pixels = buf,
+	};
 }
