@@ -142,6 +142,7 @@ bool WriteImageBuffer_I4(struct rgba_image* sourceImage, unsigned char* destBuff
 			dstPtr += 32;
 		}
 	}
+	return true;
 }
 bool PackTile_I4(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
 {
@@ -176,6 +177,7 @@ bool PackTile_I4(struct rgba_image* sourceImage, unsigned int x, unsigned int y,
 			}
 		}
 	}
+	return true;
 }
 
 bool WriteImageBuffer_I8(struct rgba_image* sourceImage, unsigned char* destBuffer)
@@ -195,6 +197,7 @@ bool WriteImageBuffer_I8(struct rgba_image* sourceImage, unsigned char* destBuff
 			dstPtr += 32;
 		}
 	}
+	return true;
 }
 bool PackTile_I8(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
 {
@@ -223,6 +226,7 @@ bool PackTile_I8(struct rgba_image* sourceImage, unsigned int x, unsigned int y,
 			tilePtr++;
 		}
 	}
+	return true;
 }
 
 bool WriteImageBuffer_IA4(struct rgba_image* sourceImage, unsigned char* destBuffer)
@@ -245,6 +249,7 @@ bool WriteImageBuffer_IA4(struct rgba_image* sourceImage, unsigned char* destBuf
 			dstPtr += 32;
 		}
 	}
+	return true;
 }
 bool PackTile_IA4(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
 {
@@ -275,6 +280,7 @@ bool PackTile_IA4(struct rgba_image* sourceImage, unsigned int x, unsigned int y
 			tilePtr++;
 		}
 	}
+	return true;
 }
 
 bool WriteImageBuffer_IA8(struct rgba_image* sourceImage, unsigned char* destBuffer)
@@ -297,6 +303,7 @@ bool WriteImageBuffer_IA8(struct rgba_image* sourceImage, unsigned char* destBuf
 			dstPtr += 32;
 		}
 	}
+	return true;
 }
 bool PackTile_IA8(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
 {
@@ -325,6 +332,7 @@ bool PackTile_IA8(struct rgba_image* sourceImage, unsigned int x, unsigned int y
 			tilePtr += 2;
 		}
 	}
+	return true;
 }
 
 bool WriteImageBuffer_R5G6B5(struct rgba_image* sourceImage, unsigned char* destBuffer)
@@ -347,6 +355,7 @@ bool WriteImageBuffer_R5G6B5(struct rgba_image* sourceImage, unsigned char* dest
 			dstPtr += 32;
 		}
 	}
+	return true;
 }
 bool PackTile_R5G6B5(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
 {
@@ -374,6 +383,7 @@ bool PackTile_R5G6B5(struct rgba_image* sourceImage, unsigned int x, unsigned in
 			tilePtr += 2;
 		}
 	}
+	return true;
 }
 
 bool WriteImageBuffer_RGB5A3(struct rgba_image* sourceImage, unsigned char* destBuffer)
@@ -396,6 +406,7 @@ bool WriteImageBuffer_RGB5A3(struct rgba_image* sourceImage, unsigned char* dest
 			dstPtr += 32;
 		}
 	}
+	return true;
 }
 bool PackTile_RGB5A3(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
 {
@@ -446,6 +457,7 @@ bool PackTile_RGB5A3(struct rgba_image* sourceImage, unsigned int x, unsigned in
 
 		}
 	}
+	return true;
 }
 
 bool WriteImageBuffer_RGBA8(struct rgba_image* sourceImage, unsigned char* destBuffer)
@@ -468,6 +480,7 @@ bool WriteImageBuffer_RGBA8(struct rgba_image* sourceImage, unsigned char* destB
 			dstPtr += 64;
 		}
 	}
+	return true;
 }
 bool PackTile_RGBA8(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
 {
@@ -502,6 +515,7 @@ bool PackTile_RGBA8(struct rgba_image* sourceImage, unsigned int x, unsigned int
 			gbPtr += 2;
 		}
 	}
+	return true;
 }
 
 
@@ -520,12 +534,13 @@ bool WriteImageBuffer_CMPR(struct rgba_image* sourceImage, unsigned char* destBu
 	{
 		for (unsigned int tileCol = 0; tileCol < srcTileCols; tileCol += 2)
 		{
-			PackTile_CMP(sourceImage, tileCol, tileRow, dstPtr);
+			PackTile_CMPR(sourceImage, tileCol, tileRow, dstPtr);
 			dstPtr += 16;
 		}
 	}
+	return true;
 }
-bool PackTile_CMPR(struct rgba_image* sourceImage, unsigned int tileX, unsigned int tileY, unsigned char* dstPtr)
+bool PackTile_CMPR(struct rgba_image* sourceImage, unsigned int tileX, unsigned int tileY, unsigned short* dstPtr)
 {
 	unsigned int  x, y;
 	unsigned short* srcPtr;
@@ -570,7 +585,7 @@ bool PackTile_CMPR(struct rgba_image* sourceImage, unsigned int tileX, unsigned 
 			case 4:
 			case 5:
 				tmp = *srcPtr++;
-				TCFixEndian((unsigned char*)(&tmp), 2);
+				tryByteSwap16(&tmp);
 				*buffPtr++ = tmp;
 				break;
 
@@ -581,11 +596,27 @@ bool PackTile_CMPR(struct rgba_image* sourceImage, unsigned int tileX, unsigned 
 			case 6:
 			case 7:
 				tmp = *srcPtr++;
-				TCFixCMPWord(&tmp);
+				FixCMPR(&tmp);
 				*buffPtr++ = tmp;
 				break;
 
 			} // end switch
 		} // end for( subRowShorts )			
 	} // end for( subTileRows )
+	return true;
+}
+void FixCMPR(unsigned short* value)
+{
+	unsigned short tmp = *value;
+
+	// reverse tuple order within bytes
+	*value = ((tmp & 0x3) << 6) |
+		((tmp & 0xC) << 2) |
+		((tmp & 0x30) >> 2) |
+		((tmp & 0xC0) >> 6) |
+
+		((tmp & 0x300) << 6) |
+		((tmp & 0xC00) << 2) |
+		((tmp & 0x3000) >> 2) |
+		((tmp & 0xC000) >> 6);
 }

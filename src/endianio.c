@@ -165,3 +165,30 @@ size_t fwrite_e(void* _Buffer, size_t ElementSize, size_t ElementCount, FILE* _S
 	Normal:
 	return fwrite(_Buffer, ElementSize, ElementCount, _Stream);
 }
+
+void tryByteSwap16(unsigned short* v)
+{
+	unsigned short (*func16_ptr)(unsigned short);
+	if (false)
+	{
+		func16_ptr = &H16LE;
+	}
+	else
+	{
+		func16_ptr = &H16BE;
+	}
+	*v = func16_ptr(*v);
+}
+void tryByteSwap32(unsigned int* v)
+{
+	unsigned int (*func32_ptr)(unsigned int);
+	if (false)
+	{
+		func32_ptr = &H32LE;
+	}
+	else
+	{
+		func32_ptr = &H32BE;
+	}
+	*v = func32_ptr(*v);
+}

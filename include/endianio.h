@@ -32,4 +32,6 @@ char** readStringTable(FILE* fp);
 size_t fread_e(void* _Buffer, size_t ElementSize, size_t ElementCount, FILE* _Stream);
 size_t fwrite_e(void* _Buffer, size_t ElementSize, size_t ElementCount, FILE* _Stream);
 
+void tryByteSwap16(unsigned short* v);
+void tryByteSwap32(unsigned int* v);
 #endif /* __ENDIANIO_H */

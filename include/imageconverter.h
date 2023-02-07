@@ -40,6 +40,7 @@ bool PackTile_RGBA8(struct rgba_image* sourceImage, unsigned int x, unsigned int
 //CI4 not supported
 //CI8 not supported
 //CI14_X2 not supported
-bool PackTile_CMPR(struct rgba_image* sourceImage, unsigned int tilex, unsigned int tiley, unsigned char* dstPtr);
+bool PackTile_CMPR(struct rgba_image* sourceImage, unsigned int tilex, unsigned int tiley, unsigned short* dstPtr);
+void FixCMPR(unsigned short* value);
 
 #endif /* __IMAGECONVERTER_H */
