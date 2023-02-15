@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
 			} else if (!strcmp(argv[i], "--sm3das")) {
 				output_bdl = true; // implies --bdl
 				sm3das = true;
-			}else if (!strcmp(argv[i], "--mat") || !strcmp(argv[i], "-m")) {
+			} else if (!strcmp(argv[i], "--mat") || !strcmp(argv[i], "-m")) {
 				mat_path = argv[++i];
 			} else if (!strcmp(argv[i], "--tex") || !strcmp(argv[i], "-t")) {
 				tex_path = argv[++i];
