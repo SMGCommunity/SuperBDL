@@ -19,6 +19,12 @@
     <Filter Include="Header Files\Sections">
       <UniqueIdentifier>{705d2905-91c0-4182-9b7f-b5077701ba6a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Libraries">
+      <UniqueIdentifier>{083db136-2f5b-4ce0-a60c-32d498e299ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Libraries">
+      <UniqueIdentifier>{c6e2753b-44c2-482b-8ec7-995a4c2c5bf7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.c">
@@ -44,6 +50,15 @@
     </ClCompile>
     <ClCompile Include="src\mat-json.c">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imageconverter.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\read_png.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stb_dxt.c">
+      <Filter>Source Files\Libraries</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -97,6 +112,15 @@
     </ClInclude>
     <ClInclude Include="include\superbdl.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imageconverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\read_png.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stb_dxt.h">
+      <Filter>Header Files\Libraries</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

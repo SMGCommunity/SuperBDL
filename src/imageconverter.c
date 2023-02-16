@@ -71,7 +71,7 @@ unsigned int calculateImageBufferSize(struct rgba_image* sourceImage, enum GXIma
 	case RGBA32:
 		return calculateImageBufferSize_32Bit(sourceImage);
 	case CMPR:
-		return calculateImageBufferSize_DXT1(sourceImage);
+		return calculateImageBufferSize_CMPR(sourceImage);
 	case UNDEFINED:
 	default:
 		//ERROR
@@ -119,7 +119,7 @@ unsigned int calculateImageBufferSize_32Bit(struct rgba_image* sourceImage)
 	size = tileCols * tileRows * 32 * 2;
 	return size;
 }
-unsigned int calculateImageBufferSize_DXT1(struct rgba_image* sourceImage)
+unsigned int calculateImageBufferSize_CMPR(struct rgba_image* sourceImage)
 {
 	unsigned int tileCols, tileRows, size;
 	unsigned int width = sourceImage->width, height = sourceImage->height;
@@ -132,30 +132,33 @@ unsigned int calculateImageBufferSize_DXT1(struct rgba_image* sourceImage)
 }
 
 
-
+void createDXT1FromRGBA(struct rgba_image* sourceImage, unsigned char* dest, int AlphaCutoff, bool HighQuality)
+{
+	stb_compress_dxt_block(dest, *(sourceImage->pixels), AlphaCutoff, HighQuality ? STB_DXT_HIGHQUAL : STB_DXT_NORMAL);
+}
 
 //====================================================================================== by far the worst part about image conversion...
 
-bool WriteImageBuffer(struct rgba_image* sourceImage, unsigned char* destBuffer, enum GXImageFormats targetFormat)
+bool writeImageBuffer(struct rgba_image* sourceImage, unsigned char* destBuffer, enum GXImageFormats targetFormat)
 {
 	switch (targetFormat)
 	{
 	case I4:
-		return WriteImageBuffer_I4(sourceImage, destBuffer);
+		return writeImageBuffer_I4(sourceImage, destBuffer);
 	case I8:
-		return WriteImageBuffer_I8(sourceImage, destBuffer);
+		return writeImageBuffer_I8(sourceImage, destBuffer);
 	case IA4:
-		return WriteImageBuffer_IA4(sourceImage, destBuffer);
+		return writeImageBuffer_IA4(sourceImage, destBuffer);
 	case IA8:
-		return WriteImageBuffer_IA8(sourceImage, destBuffer);
+		return writeImageBuffer_IA8(sourceImage, destBuffer);
 	case RGB565:
-		return WriteImageBuffer_R5G6B5(sourceImage, destBuffer);
+		return writeImageBuffer_R5G6B5(sourceImage, destBuffer);
 	case RGB5A3:
-		return WriteImageBuffer_RGB5A3(sourceImage, destBuffer);
+		return writeImageBuffer_RGB5A3(sourceImage, destBuffer);
 	case RGBA32:
-		return WriteImageBuffer_RGBA8(sourceImage, destBuffer);
+		return writeImageBuffer_RGBA8(sourceImage, destBuffer);
 	case CMPR:
-		return WriteImageBuffer_CMPR(sourceImage, destBuffer);
+		return writeImageBuffer_CMPR(sourceImage, destBuffer);
 
 	case C4:
 	case C8:
@@ -170,7 +173,7 @@ bool WriteImageBuffer(struct rgba_image* sourceImage, unsigned char* destBuffer,
 
 
 
-bool WriteImageBuffer_I4(struct rgba_image* sourceImage, unsigned char* destBuffer)
+bool writeImageBuffer_I4(struct rgba_image* sourceImage, unsigned char* destBuffer)
 {
 	// number of 8x8 texel tile cols, rows including any partial tiles
 	unsigned int width= sourceImage->width, height= sourceImage->height;
@@ -183,13 +186,13 @@ bool WriteImageBuffer_I4(struct rgba_image* sourceImage, unsigned char* destBuff
 	{
 		for (tileCol = 0; tileCol < numTileCols; tileCol++)
 		{
-			PackTile_I4(sourceImage, (tileCol * 8), (tileRow * 8), dstPtr);
+			packTile_I4(sourceImage, (tileCol * 8), (tileRow * 8), dstPtr);
 			dstPtr += 32;
 		}
 	}
 	return true;
 }
-bool PackTile_I4(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
+bool packTile_I4(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
 {
 	unsigned char* tilePtr;
 	unsigned int realRows = sourceImage->height - y;
@@ -225,7 +228,7 @@ bool PackTile_I4(struct rgba_image* sourceImage, unsigned int x, unsigned int y,
 	return true;
 }
 
-bool WriteImageBuffer_I8(struct rgba_image* sourceImage, unsigned char* destBuffer)
+bool writeImageBuffer_I8(struct rgba_image* sourceImage, unsigned char* destBuffer)
 {
 	// number of 4x8 texel tile cols, rows including any partial tiles
 	unsigned int width = sourceImage->width, height = sourceImage->height;
@@ -238,13 +241,13 @@ bool WriteImageBuffer_I8(struct rgba_image* sourceImage, unsigned char* destBuff
 	{
 		for (tileCol = 0; tileCol < numTileCols; tileCol++)
 		{
-			PackTile_I8(sourceImage, (tileCol * 8), (tileRow * 4), dstPtr);
+			packTile_I8(sourceImage, (tileCol * 8), (tileRow * 4), dstPtr);
 			dstPtr += 32;
 		}
 	}
 	return true;
 }
-bool PackTile_I8(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
+bool packTile_I8(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
 {
 	unsigned char* tilePtr;
 
@@ -274,7 +277,7 @@ bool PackTile_I8(struct rgba_image* sourceImage, unsigned int x, unsigned int y,
 	return true;
 }
 
-bool WriteImageBuffer_IA4(struct rgba_image* sourceImage, unsigned char* destBuffer)
+bool writeImageBuffer_IA4(struct rgba_image* sourceImage, unsigned char* destBuffer)
 {
 	unsigned int width = sourceImage->width, height = sourceImage->height;
 	unsigned int numTileRows, tileRow;
@@ -290,13 +293,13 @@ bool WriteImageBuffer_IA4(struct rgba_image* sourceImage, unsigned char* destBuf
 	{
 		for (tileCol = 0; tileCol < numTileCols; tileCol++)
 		{
-			PackTile_IA4(sourceImage, (tileCol * 8), (tileRow * 4), dstPtr);
+			packTile_IA4(sourceImage, (tileCol * 8), (tileRow * 4), dstPtr);
 			dstPtr += 32;
 		}
 	}
 	return true;
 }
-bool PackTile_IA4(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
+bool packTile_IA4(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
 {
 	unsigned char* tilePtr;
 	unsigned int realRows = sourceImage->height - y;
@@ -328,7 +331,7 @@ bool PackTile_IA4(struct rgba_image* sourceImage, unsigned int x, unsigned int y
 	return true;
 }
 
-bool WriteImageBuffer_IA8(struct rgba_image* sourceImage, unsigned char* destBuffer)
+bool writeImageBuffer_IA8(struct rgba_image* sourceImage, unsigned char* destBuffer)
 {
 	unsigned int width = sourceImage->width, height = sourceImage->height;
 	unsigned int numTileRows, tileRow;
@@ -344,13 +347,13 @@ bool WriteImageBuffer_IA8(struct rgba_image* sourceImage, unsigned char* destBuf
 	{
 		for (tileCol = 0; tileCol < numTileCols; tileCol++)
 		{
-			PackTile_IA8(sourceImage, (tileCol * 4), (tileRow * 4), dstPtr);
+			packTile_IA8(sourceImage, (tileCol * 4), (tileRow * 4), dstPtr);
 			dstPtr += 32;
 		}
 	}
 	return true;
 }
-bool PackTile_IA8(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
+bool packTile_IA8(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
 {
 	unsigned char* tilePtr;
 	unsigned int realRows = sourceImage->height - y;
@@ -380,7 +383,7 @@ bool PackTile_IA8(struct rgba_image* sourceImage, unsigned int x, unsigned int y
 	return true;
 }
 
-bool WriteImageBuffer_R5G6B5(struct rgba_image* sourceImage, unsigned char* destBuffer)
+bool writeImageBuffer_R5G6B5(struct rgba_image* sourceImage, unsigned char* destBuffer)
 {
 	unsigned int width = sourceImage->width, height = sourceImage->height;
 	unsigned int numTileRows, tileRow;
@@ -396,13 +399,13 @@ bool WriteImageBuffer_R5G6B5(struct rgba_image* sourceImage, unsigned char* dest
 	{
 		for (tileCol = 0; tileCol < numTileCols; tileCol++)
 		{
-			PackTile_R5G6B5(sourceImage, (tileCol * 4), (tileRow * 4), dstPtr);
+			packTile_R5G6B5(sourceImage, (tileCol * 4), (tileRow * 4), dstPtr);
 			dstPtr += 32;
 		}
 	}
 	return true;
 }
-bool PackTile_R5G6B5(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
+bool packTile_R5G6B5(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
 {
 	unsigned char* tilePtr;
 	unsigned int realRows = sourceImage->height - y;
@@ -431,7 +434,7 @@ bool PackTile_R5G6B5(struct rgba_image* sourceImage, unsigned int x, unsigned in
 	return true;
 }
 
-bool WriteImageBuffer_RGB5A3(struct rgba_image* sourceImage, unsigned char* destBuffer)
+bool writeImageBuffer_RGB5A3(struct rgba_image* sourceImage, unsigned char* destBuffer)
 {
 	unsigned int width = sourceImage->width, height = sourceImage->height;
 	unsigned int numTileRows, tileRow;
@@ -447,13 +450,13 @@ bool WriteImageBuffer_RGB5A3(struct rgba_image* sourceImage, unsigned char* dest
 	{
 		for (tileCol = 0; tileCol < numTileCols; tileCol++)
 		{
-			PackTile_RGB5A3(sourceImage, (tileCol * 4), (tileRow * 4), dstPtr);
+			packTile_RGB5A3(sourceImage, (tileCol * 4), (tileRow * 4), dstPtr);
 			dstPtr += 32;
 		}
 	}
 	return true;
 }
-bool PackTile_RGB5A3(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
+bool packTile_RGB5A3(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
 {
 	unsigned char* tilePtr;
 	unsigned int realRows = sourceImage->height - y;
@@ -505,7 +508,7 @@ bool PackTile_RGB5A3(struct rgba_image* sourceImage, unsigned int x, unsigned in
 	return true;
 }
 
-bool WriteImageBuffer_RGBA8(struct rgba_image* sourceImage, unsigned char* destBuffer)
+bool writeImageBuffer_RGBA8(struct rgba_image* sourceImage, unsigned char* destBuffer)
 {
 	unsigned int width = sourceImage->width, height = sourceImage->height;
 	unsigned int numTileRows, tileRow;
@@ -521,13 +524,13 @@ bool WriteImageBuffer_RGBA8(struct rgba_image* sourceImage, unsigned char* destB
 	{
 		for (tileCol = 0; tileCol < numTileCols; tileCol++)
 		{
-			PackTile_RGBA8(sourceImage, (tileCol * 4), (tileRow * 4), dstPtr);
+			packTile_RGBA8(sourceImage, (tileCol * 4), (tileRow * 4), dstPtr);
 			dstPtr += 64;
 		}
 	}
 	return true;
 }
-bool PackTile_RGBA8(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
+bool packTile_RGBA8(struct rgba_image* sourceImage, unsigned int x, unsigned int y, unsigned char* dstPtr)
 {
 	unsigned int realRows = sourceImage->height - y;
 	unsigned int realCols = sourceImage->width - x;
@@ -565,7 +568,7 @@ bool PackTile_RGBA8(struct rgba_image* sourceImage, unsigned int x, unsigned int
 
 
 
-bool WriteImageBuffer_CMPR(struct rgba_image* sourceImage, unsigned char* destBuffer)
+bool writeImageBuffer_CMPR(struct rgba_image* sourceImage, unsigned char* destBuffer)
 {
 	unsigned int srcTileRows, srcTileCols;
 	unsigned short* dstPtr = (unsigned short*)(destBuffer);
@@ -579,13 +582,13 @@ bool WriteImageBuffer_CMPR(struct rgba_image* sourceImage, unsigned char* destBu
 	{
 		for (unsigned int tileCol = 0; tileCol < srcTileCols; tileCol += 2)
 		{
-			PackTile_CMPR(sourceImage, tileCol, tileRow, dstPtr);
+			packTile_CMPR(sourceImage, tileCol, tileRow, dstPtr);
 			dstPtr += 16;
 		}
 	}
 	return true;
 }
-bool PackTile_CMPR(struct rgba_image* sourceImage, unsigned int tileX, unsigned int tileY, unsigned short* dstPtr)
+bool packTile_CMPR(struct rgba_image* sourceImage, unsigned int tileX, unsigned int tileY, unsigned short* dstPtr)
 {
 	unsigned int  x, y;
 	unsigned short* srcPtr;
@@ -641,7 +644,7 @@ bool PackTile_CMPR(struct rgba_image* sourceImage, unsigned int tileX, unsigned 
 			case 6:
 			case 7:
 				tmp = *srcPtr++;
-				FixCMPR(&tmp);
+				fixCMPR(&tmp);
 				*buffPtr++ = tmp;
 				break;
 
@@ -650,7 +653,7 @@ bool PackTile_CMPR(struct rgba_image* sourceImage, unsigned int tileX, unsigned 
 	} // end for( subTileRows )
 	return true;
 }
-void FixCMPR(unsigned short* value)
+void fixCMPR(unsigned short* value)
 {
 	unsigned short tmp = *value;
 

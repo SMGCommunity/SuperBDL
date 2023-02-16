@@ -124,6 +124,7 @@
     <ClCompile Include="src\mat-json.c" />
     <ClCompile Include="src\mat3.c" />
     <ClCompile Include="src\read_png.c" />
+    <ClCompile Include="src\stb_dxt.c" />
     <ClCompile Include="src\tex-json.c" />
     <ClCompile Include="src\tex1.c" />
   </ItemGroup>
@@ -142,6 +143,7 @@
     <ClInclude Include="include\mdl3.h" />
     <ClInclude Include="include\read_png.h" />
     <ClInclude Include="include\shp1.h" />
+    <ClInclude Include="include\stb_dxt.h" />
     <ClInclude Include="include\superbdl.h" />
     <ClInclude Include="include\tex-json.h" />
     <ClInclude Include="include\tex1.h" />
