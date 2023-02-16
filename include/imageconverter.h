@@ -9,6 +9,7 @@
 #include "stb_dxt.h"
 
 enum GXImageFormats calculateBestImageFormat(struct rgba_image* sourceImage);
+enum JUTTransparency calculateBestTransparency(struct rgba_image* sourceImage);
 
 unsigned int calculateImageBufferSize(struct rgba_image* sourceImage, enum GXImageFormats imageFormatTarget);
 unsigned int calculateImageBufferSize_4Bit(struct rgba_image* sourceImage);
@@ -53,5 +54,14 @@ bool packTile_RGBA8(struct rgba_image* sourceImage, unsigned int x, unsigned int
 //CI14_X2 not supported
 bool packTile_CMPR(struct rgba_image* sourceImage, unsigned int tilex, unsigned int tiley, unsigned short* dstPtr);
 void fixCMPR(unsigned short* value);
+
+
+/// <summary>
+/// Creates a JUTTexture's data from a RGBA source
+/// </summary>
+/// <param name="sourceImage">- the original source</param>
+/// <param name="dest">- the destination struct.</param>
+/// <returns></returns>
+bool createJUTTextureData(struct rgba_image* sourceImage, struct JUTTexture* dest);
 
 #endif /* __IMAGECONVERTER_H */

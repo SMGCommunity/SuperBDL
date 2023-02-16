@@ -26,20 +26,20 @@ enum JUTTransparency
 
 enum GXWrapMode
 {
-	CLAMP = 0x00,
-	REPEAT = 0x01,
-	MIRROR = 0x02
+	WRAP_MODE_CLAMP = 0x00,
+	WRAP_MODE_REPEAT = 0x01,
+	WRAP_MODE_MIRROR = 0x02
 };
 
 enum GXTexFilter
 {
-	NEAR = 0,
-	LINEAR = 1,
+	TEX_FILTER_NEAR = 0,
+	TEX_FILTER_LINEAR = 1,
 	//Minification only from here on out
-	NEAR_MIP_NEAR = 2,
-	LIN_MIP_NEAR = 3,
-	NEAR_MIP_LIN = 4,
-	LIN_MIP_LIN = 5
+	TEX_FILTER_NEAR_MIP_NEAR = 2,
+	TEX_FILTER_LIN_MIP_NEAR = 3,
+	TEX_FILTER_NEAR_MIP_LIN = 4,
+	TEX_FILTER_LIN_MIP_LIN = 5
 };
 
 enum GXImageFormats {
@@ -58,7 +58,7 @@ enum GXImageFormats {
 	/// <summary>
 	/// Only here for conversion purposes. Not part of GX.
 	/// </summary>
-	UNDEFINED = 0xFF
+	IMG_FMT_UNDEFINED = 0xFF
 };
 
 enum GXPaletteFormats
@@ -101,7 +101,7 @@ struct JUTTexture
 
 bool readTEX1(FILE* fp, struct JUTTexture*** outputArray, unsigned int* elementCount);
 bool readJUTTexture(FILE* fp, struct JUTTexture* output);
-int calcImageSize(enum GXImageFormats Format, unsigned short width, unsigned short height, unsigned int MipCount);
+int calculateImageSize(enum GXImageFormats Format, unsigned short width, unsigned short height, unsigned int MipCount);
 bool writeTEX1(const struct aiScene *data);
 
 bool texcmp(struct JUTTexture* tex1, struct JUTTexture* tex2);

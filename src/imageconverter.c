@@ -50,7 +50,25 @@ enum GXImageFormats calculateBestImageFormat(struct rgba_image* sourceImage)
 	else
 		return (ShouldBeCompressed && !HasFullAlpha) ? CMPR : (HasFullAlpha ? RGBA32 : RGB5A3);
 }
+enum JUTTransparency calculateBestTransparency(struct rgba_image* sourceImage)
+{
+	bool HasAlpha = false;
+	for (size_t y = 0; y < sourceImage->height; y++)
+	{
+		for (size_t x = 0; x < sourceImage->width; x++)
+		{
+			union Vector4uc CurrentPixel = sourceImage->PIXELACCESS(x, y);
 
+			if (CurrentPixel.a != 0xFF)
+			{
+				if (CurrentPixel.a != 0)
+					return JUT_TRANSLUCENT;
+				HasAlpha = true;
+			}
+		}
+	}
+	return HasAlpha ? JUT_CUTOUT : JUT_OPAQUE;
+}
 
 unsigned int calculateImageBufferSize(struct rgba_image* sourceImage, enum GXImageFormats imageFormatTarget)
 {
@@ -72,7 +90,7 @@ unsigned int calculateImageBufferSize(struct rgba_image* sourceImage, enum GXIma
 		return calculateImageBufferSize_32Bit(sourceImage);
 	case CMPR:
 		return calculateImageBufferSize_CMPR(sourceImage);
-	case UNDEFINED:
+	case IMG_FMT_UNDEFINED:
 	default:
 		//ERROR
 		return 0;
@@ -163,7 +181,7 @@ bool writeImageBuffer(struct rgba_image* sourceImage, unsigned char* destBuffer,
 	case C4:
 	case C8:
 	case C14X2:
-	case UNDEFINED:
+	case IMG_FMT_UNDEFINED:
 	default:
 		//ERROR
 		return false;
@@ -667,4 +685,31 @@ void fixCMPR(unsigned short* value)
 		((tmp & 0xC00) << 2) |
 		((tmp & 0x3000) >> 2) |
 		((tmp & 0xC000) >> 6);
+}
+
+
+//=================================================================================================================
+
+
+bool createJUTTextureData(struct rgba_image* sourceImage, struct JUTTexture* dest)
+{
+	if (dest->ImageData != NULL)
+		return false;
+
+	if (dest->Format == IMG_FMT_UNDEFINED)
+		dest->Format = calculateBestImageFormat(sourceImage);
+
+	dest->Width = sourceImage->width;
+	dest->Height = sourceImage->height;
+	dest->MinLOD = 0;
+	dest->MaxLOD = dest->ImageCount = get_mipmap_count(sourceImage);
+	dest->AlphaSetting = calculateBestTransparency(sourceImage);
+	dest->MinificationFilter = dest->ImageCount > 1 ? TEX_FILTER_LIN_MIP_LIN : TEX_FILTER_LINEAR;
+	dest->MagnificationFilter = TEX_FILTER_LINEAR;
+	dest->WrapS = dest->WrapT = WRAP_MODE_REPEAT;
+	dest->EnableMipmaps = dest->MaxLOD > 1;
+	dest->ImageDataSize = calculateImageBufferSize(sourceImage, dest->Format);
+	dest->ImageData = calloc(dest->ImageDataSize, 1);
+	//TODO: Calculate the size of the RGBA -> DXT1 part!
+	writeImageBuffer(sourceImage, (unsigned char *)dest->ImageData, dest->Format);
 }

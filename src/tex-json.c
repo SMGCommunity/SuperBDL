@@ -70,22 +70,22 @@ struct JUTTexture **read_tex_json(FILE *fp) {
 		// WrapS
 		const char *wrap_s = json_object_get_string(json_object_object_get(tex_array_obj, "WrapS"));
 		if (!strcmp(wrap_s, "ClampToEdge"))
-			tex[i]->WrapS = CLAMP;
+			tex[i]->WrapS = WRAP_MODE_CLAMP;
 		else if (!strcmp(wrap_s, "Repeat"))
-			tex[i]->WrapS = REPEAT;
+			tex[i]->WrapS = WRAP_MODE_REPEAT;
 		else if (!strcmp(wrap_s, "MirroredRepeat"))
-			tex[i]->WrapS = MIRROR;
+			tex[i]->WrapS = WRAP_MODE_MIRROR;
 		else
 			return NULL;
 
 		// WrapT
 		const char *wrap_t = json_object_get_string(json_object_object_get(tex_array_obj, "WrapT"));
 		if (!strcmp(wrap_t, "ClampToEdge"))
-			tex[i]->WrapT = CLAMP;
+			tex[i]->WrapT = WRAP_MODE_CLAMP;
 		else if (!strcmp(wrap_t, "Repeat"))
-			tex[i]->WrapT = REPEAT;
+			tex[i]->WrapT = WRAP_MODE_REPEAT;
 		else if (!strcmp(wrap_t, "MirroredRepeat"))
-			tex[i]->WrapT = MIRROR;
+			tex[i]->WrapT = WRAP_MODE_MIRROR;
 		else
 			return NULL;
 
@@ -115,26 +115,26 @@ struct JUTTexture **read_tex_json(FILE *fp) {
 		// MinFilter
 		const char *minification_filter = json_object_get_string(json_object_object_get(tex_array_obj, "MinFilter"));
 		if (!strcmp(minification_filter, "Nearest"))
-			tex[i]->MinificationFilter = NEAR;
+			tex[i]->MinificationFilter = TEX_FILTER_NEAR;
 		else if (!strcmp(minification_filter, "Linear"))
-			tex[i]->MinificationFilter = LINEAR;
+			tex[i]->MinificationFilter = TEX_FILTER_LINEAR;
 		else if (!strcmp(minification_filter, "NearestMipmapNearest"))
-			tex[i]->MinificationFilter = NEAR_MIP_NEAR;
+			tex[i]->MinificationFilter = TEX_FILTER_NEAR_MIP_NEAR;
 		else if (!strcmp(minification_filter, "NearestMipmapLinear"))
-			tex[i]->MinificationFilter = NEAR_MIP_LIN;
+			tex[i]->MinificationFilter = TEX_FILTER_NEAR_MIP_LIN;
 		else if (!strcmp(minification_filter, "LinearMipmapNearest"))
-			tex[i]->MinificationFilter = LIN_MIP_NEAR;
+			tex[i]->MinificationFilter = TEX_FILTER_LIN_MIP_NEAR;
 		else if (!strcmp(minification_filter, "LinearMipmapLinear"))
-			tex[i]->MinificationFilter = LIN_MIP_LIN;
+			tex[i]->MinificationFilter = TEX_FILTER_LIN_MIP_LIN;
 		else
 			return NULL;
 
 		// MagFilter
 		const char *magnification_filter = json_object_get_string(json_object_object_get(tex_array_obj, "MagFilter"));
 		if (!strcmp(magnification_filter, "Nearest"))
-			tex[i]->MagnificationFilter = NEAR;
+			tex[i]->MagnificationFilter = TEX_FILTER_NEAR;
 		else if (!strcmp(magnification_filter, "Linear"))
-			tex[i]->MagnificationFilter = LINEAR;
+			tex[i]->MagnificationFilter = TEX_FILTER_LINEAR;
 		else
 			return NULL;
 

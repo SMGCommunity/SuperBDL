@@ -86,7 +86,7 @@ bool readJUTTexture(FILE* fp, struct JUTTexture* output)
 	}
 
 	fseek(fp, startPosition + ImageDataPos, SEEK_SET);
-	int imageDataSize = calcImageSize(output->Format, output->Width, output->Height, output->ImageCount);
+	int imageDataSize = calculateImageSize(output->Format, output->Width, output->Height, output->ImageCount);
 	output->ImageData = calloc(imageDataSize, 1);
 	if (output->ImageData == NULL)
 		return false;
@@ -95,7 +95,7 @@ bool readJUTTexture(FILE* fp, struct JUTTexture* output)
 	return read == imageDataSize;
 }
 
-int calcImageSize(enum GXImageFormats Format, unsigned short width, unsigned short height, unsigned int MipCount)
+int calculateImageSize(enum GXImageFormats Format, unsigned short width, unsigned short height, unsigned int MipCount)
 {
 	int blockSize = 0, BlockWidth = 0, BlockHeight = 0;
 

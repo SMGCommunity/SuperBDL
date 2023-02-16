@@ -21,6 +21,7 @@ struct rgba_image {
 };
 
 struct rgba_image read_png(FILE *png_fp);
+int get_mipmap_count(struct rgba_image* img);
 
 #define PIXELACCESS(x, y) pixels[y][x]
 #define PIXELCOUNT size / STRIDE

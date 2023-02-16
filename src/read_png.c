@@ -76,3 +76,10 @@ struct rgba_image read_png(FILE *png_fp) {
 		.nextMipmap = NULL
 	};
 }
+
+int get_mipmap_count(struct rgba_image* img)
+{
+	if (img->nextMipmap != NULL)
+		return 1 + get_mipmap_count(img->nextMipmap);
+	return 1;
+}
