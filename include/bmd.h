@@ -62,6 +62,6 @@ enum J3DImportOptimizations
 };
 
 unsigned int getChunkPosition(FILE* fp, const char* magic);
-bool write_bmd(const struct aiScene *model_data, FILE *output_fp, bool write_bdl, bool sm3das);
+bool write_bmd(const struct aiScene *model_data, FILE *output_fp, bool write_bdl);
 
 #endif /* __BMD_H */

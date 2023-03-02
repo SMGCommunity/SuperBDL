@@ -13,6 +13,8 @@
 
 #include "bmd.h"
 
+#include "endianio.h"
+
 #include "tex1.h"
 #include "tex-json.h"
 
@@ -33,7 +35,6 @@ enum J3DImportOptimizations calculate_optimizations(int argc, char** argv)
 int main(int argc, char **argv) {
 	bool format_forced = false;
 	bool output_bdl = true;
-	bool sm3das = false;
 	enum J3DImportOptimizations optimizationFlags;
 	const char *input_path = NULL;
 	const char *output_path = NULL;
@@ -59,7 +60,7 @@ int main(int argc, char **argv) {
 				output_bdl = true;
 			} else if (!strcmp(argv[i], "--sm3das")) {
 				output_bdl = true; // implies --bdl
-				sm3das = true;
+				byte_swap = BYTE_ORDER != LITTLE_ENDIAN;
 			} else if (!strcmp(argv[i], "--mat") || !strcmp(argv[i], "-m")) {
 				mat_path = argv[++i];
 			} else if (!strcmp(argv[i], "--tex") || !strcmp(argv[i], "-t")) {
@@ -148,7 +149,7 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-	if (!write_bmd(model_data, output_fp, output_bdl, sm3das)) {
+	if (!write_bmd(model_data, output_fp, output_bdl)) {
 		// failed
 		return 1;
 	}
