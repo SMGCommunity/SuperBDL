@@ -134,6 +134,7 @@
     <ClInclude Include="include\drw1.h" />
     <ClInclude Include="include\endianio.h" />
     <ClInclude Include="include\evp1.h" />
+    <ClInclude Include="include\image.h" />
     <ClInclude Include="include\imageconverter.h" />
     <ClInclude Include="include\inf1.h" />
     <ClInclude Include="include\jnt1.h" />
@@ -141,7 +142,6 @@
     <ClInclude Include="include\mat3.h" />
     <ClInclude Include="include\matrix.h" />
     <ClInclude Include="include\mdl3.h" />
-    <ClInclude Include="include\read_png.h" />
     <ClInclude Include="include\shp1.h" />
     <ClInclude Include="include\stb_dxt.h" />
     <ClInclude Include="include\superbdl.h" />

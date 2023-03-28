@@ -113,10 +113,10 @@
     <ClInclude Include="include\superbdl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\imageconverter.h">
+    <ClInclude Include="include\image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\read_png.h">
+    <ClInclude Include="include\imageconverter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\stb_dxt.h">

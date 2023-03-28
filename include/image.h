@@ -20,6 +20,13 @@ struct rgba_image {
 	struct rgba_image* nextMipmap;
 };
 
+struct dxt1_image {
+	size_t size;
+	unsigned int width;
+	unsigned int height;
+	unsigned char *pixels;
+};
+
 struct rgba_image read_png(FILE *png_fp);
 int get_mipmap_count(struct rgba_image* img);
 

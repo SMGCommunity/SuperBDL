@@ -11,6 +11,8 @@
 #include <assimp/scene.h>
 #include <assimp/cimport.h>
 
+#include "superbdl.h"
+
 #include "bmd.h"
 
 #include "endianio.h"
@@ -20,8 +22,6 @@
 
 #include "mat3.h"
 #include "mat-json.h"
-
-#define VERSION "1.0"
 
 static void show_help(void) {
 	puts("placeholder help text");

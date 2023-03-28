@@ -70,26 +70,26 @@ enum JUTTransparency calculateBestTransparency(struct rgba_image* sourceImage)
 	return HasAlpha ? JUT_CUTOUT : JUT_OPAQUE;
 }
 
-unsigned int calculateImageBufferSize(struct rgba_image* sourceImage, enum GXImageFormats imageFormatTarget)
+unsigned int calculateImageBufferSize(unsigned int width, unsigned int height, enum GXImageFormats imageFormatTarget)
 {
 	switch (imageFormatTarget)
 	{
 	case I4:
 	case C4:
-		return calculateImageBufferSize_4Bit(sourceImage);
+		return calculateImageBufferSize_4Bit(width, height);
 	case I8:
 	case IA4:
 	case C8:
-		return calculateImageBufferSize_8Bit(sourceImage);
+		return calculateImageBufferSize_8Bit(width, height);
 	case IA8:
 	case RGB565:
 	case RGB5A3:
 	case C14X2:
-		return calculateImageBufferSize_16Bit(sourceImage);
+		return calculateImageBufferSize_16Bit(width, height);
 	case RGBA32:
-		return calculateImageBufferSize_32Bit(sourceImage);
+		return calculateImageBufferSize_32Bit(width, height);
 	case CMPR:
-		return calculateImageBufferSize_CMPR(sourceImage);
+		return calculateImageBufferSize_CMPR(width, height);
 	case IMG_FMT_UNDEFINED:
 	default:
 		//ERROR
@@ -97,50 +97,45 @@ unsigned int calculateImageBufferSize(struct rgba_image* sourceImage, enum GXIma
 	}
 }
 
-unsigned int calculateImageBufferSize_4Bit(struct rgba_image* sourceImage)
+unsigned int calculateImageBufferSize_4Bit(unsigned int width, unsigned int height)
 {
 	unsigned int tileCols, tileRows, size;
-	unsigned int width = sourceImage->width, height= sourceImage->height;
 
 	tileCols = ((width + 7) >> 3);
 	tileRows = ((height + 7) >> 3);
 	size = tileCols * tileRows * 32;
 	return size;
 }
-unsigned int calculateImageBufferSize_8Bit(struct rgba_image* sourceImage)
+unsigned int calculateImageBufferSize_8Bit(unsigned int width, unsigned int height)
 {
 	unsigned int tileCols, tileRows, size;
-	unsigned int width = sourceImage->width, height = sourceImage->height;
 
 	tileCols = ((width + 7) >> 3);
 	tileRows = ((height + 3) >> 2);
 	size = tileCols * tileRows * 32;
 	return size;
 }
-unsigned int calculateImageBufferSize_16Bit(struct rgba_image* sourceImage)
+unsigned int calculateImageBufferSize_16Bit(unsigned int width, unsigned int height)
 {
 	unsigned int tileCols, tileRows, size;
-	unsigned int width = sourceImage->width, height = sourceImage->height;
 
 	tileCols = ((width + 3) >> 2);
 	tileRows = ((height + 3) >> 2);
 	size = tileCols * tileRows * 32;
 	return size;
 }
-unsigned int calculateImageBufferSize_32Bit(struct rgba_image* sourceImage)
+unsigned int calculateImageBufferSize_32Bit(unsigned int width, unsigned int height)
 {
 	unsigned int tileCols, tileRows, size;
-	unsigned int width = sourceImage->width, height = sourceImage->height;
 
 	tileCols = ((width + 3) >> 2);
 	tileRows = ((height + 3) >> 2);
 	size = tileCols * tileRows * 32 * 2;
 	return size;
 }
-unsigned int calculateImageBufferSize_CMPR(struct rgba_image* sourceImage)
+unsigned int calculateImageBufferSize_CMPR(unsigned int width, unsigned int height)
 {
 	unsigned int tileCols, tileRows, size;
-	unsigned int width = sourceImage->width, height = sourceImage->height;
 
 	// must pad any image < 8 texels out to 8 texel boundary
 	tileCols = ((width + 7) >> 3);
@@ -150,9 +145,47 @@ unsigned int calculateImageBufferSize_CMPR(struct rgba_image* sourceImage)
 }
 
 
-void createDXT1FromRGBA(struct rgba_image* sourceImage, unsigned char* dest, int AlphaCutoff, bool HighQuality)
-{
-	stb_compress_dxt_block(dest, *(sourceImage->pixels), AlphaCutoff, HighQuality ? STB_DXT_HIGHQUAL : STB_DXT_NORMAL);
+struct dxt1_image rgba_to_dxt1(struct rgba_image *src, int alpha_cutoff, bool high_quality) {
+	const int BLOCK_SIZE = 4;
+	const int NUM_PIXELS_PER_BLOCK = BLOCK_SIZE * BLOCK_SIZE;
+	const int BYTES_PER_BLOCK = BLOCK_SIZE * 2;
+
+	int num_blocks_wide = src->width / BLOCK_SIZE;
+	int num_blocks_high = src->height / BLOCK_SIZE;
+
+	size_t size = num_blocks_wide * num_blocks_high * BYTES_PER_BLOCK;
+	unsigned char *dest = malloc(size);
+
+	for (int j = 0; j < num_blocks_high; ++j) {
+		for (int i = 0; i < num_blocks_wide; ++i) {
+			unsigned char src_block[NUM_PIXELS_PER_BLOCK * 4];
+			int index = 0;
+
+			for (int y = 0; y < BLOCK_SIZE; ++y) {
+				for (int x = 0; x < BLOCK_SIZE; ++x) {
+					union Vector4uc src_pixel = src->pixels[j * BLOCK_SIZE + y][i * BLOCK_SIZE + x];
+
+					if (alpha_cutoff >= 0 && src_pixel.a <= alpha_cutoff)
+						src_pixel.a = 0;
+
+					src_block[index++] = src_pixel.r;
+					src_block[index++] = src_pixel.g;
+					src_block[index++] = src_pixel.b;
+					src_block[index++] = src_pixel.a;
+				}
+			}
+
+			unsigned char *dest_block = dest + (j * num_blocks_wide + i) * BYTES_PER_BLOCK;
+			stb_compress_dxt_block(dest_block, src_block, alpha_cutoff, high_quality ? STB_DXT_HIGHQUAL : STB_DXT_NORMAL);
+		}
+	}
+
+	return (struct dxt1_image) {
+		.size = size,
+		.width = src->width,
+		.height = src->height,
+		.pixels = dest,
+	};
 }
 
 //====================================================================================== by far the worst part about image conversion...
@@ -176,7 +209,8 @@ bool writeImageBuffer(struct rgba_image* sourceImage, unsigned char* destBuffer,
 	case RGBA32:
 		return writeImageBuffer_RGBA8(sourceImage, destBuffer);
 	case CMPR:
-		return writeImageBuffer_CMPR(sourceImage, destBuffer);
+		struct dxt1_image dxt1 = rgba_to_dxt1(sourceImage, 0, false);
+		return writeImageBuffer_CMPR(&dxt1, destBuffer);
 
 	case C4:
 	case C8:
@@ -586,7 +620,7 @@ bool packTile_RGBA8(struct rgba_image* sourceImage, unsigned int x, unsigned int
 
 
 
-bool writeImageBuffer_CMPR(struct rgba_image* sourceImage, unsigned char* destBuffer)
+bool writeImageBuffer_CMPR(struct dxt1_image* sourceImage, unsigned char* destBuffer)
 {
 	unsigned int srcTileRows, srcTileCols;
 	unsigned short* dstPtr = (unsigned short*)(destBuffer);
@@ -606,7 +640,7 @@ bool writeImageBuffer_CMPR(struct rgba_image* sourceImage, unsigned char* destBu
 	}
 	return true;
 }
-bool packTile_CMPR(struct rgba_image* sourceImage, unsigned int tileX, unsigned int tileY, unsigned short* dstPtr)
+bool packTile_CMPR(struct dxt1_image* sourceImage, unsigned int tileX, unsigned int tileY, unsigned short* dstPtr)
 {
 	unsigned int  x, y;
 	unsigned short* srcPtr;
@@ -636,7 +670,7 @@ bool packTile_CMPR(struct rgba_image* sourceImage, unsigned int tileX, unsigned 
 
 	for (y = 0; y < subTileRows; y++)
 	{
-		srcPtr = (unsigned short*)((unsigned char*)(*(sourceImage->pixels)) + ((tileY + y) * srcTileOffset) + (tileX * 8));
+		srcPtr = (unsigned short*)((unsigned char*)((sourceImage->pixels)) + ((tileY + y) * srcTileOffset) + (tileX * 8));
 		buffPtr = (dstPtr + (y * 8));        // 16 bytes per subRow = 8 shorts
 
 		// process one or both 4x4 row tiles at once- 4 short each
@@ -708,8 +742,10 @@ bool createJUTTextureData(struct rgba_image* sourceImage, struct JUTTexture* des
 	dest->MagnificationFilter = TEX_FILTER_LINEAR;
 	dest->WrapS = dest->WrapT = WRAP_MODE_REPEAT;
 	dest->EnableMipmaps = dest->MaxLOD > 1;
-	dest->ImageDataSize = calculateImageBufferSize(sourceImage, dest->Format);
+	dest->ImageDataSize = calculateImageBufferSize(sourceImage->width, sourceImage->height, dest->Format);
 	dest->ImageData = calloc(dest->ImageDataSize, 1);
 	//TODO: Calculate the size of the RGBA -> DXT1 part!
 	writeImageBuffer(sourceImage, (unsigned char *)dest->ImageData, dest->Format);
+
+	return true;
 }

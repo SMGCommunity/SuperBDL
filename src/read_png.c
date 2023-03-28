@@ -4,7 +4,7 @@
 #include <png.h>
 
 #include "vector.h"
-#include "read_png.h"
+#include "image.h"
 
 struct rgba_image read_png(FILE *png_fp) {
 	unsigned char header[8];

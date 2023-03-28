@@ -1,6 +1,8 @@
 #ifndef __SUPERBDL_H
 #define __SUPERBDL_H
 
+#define VERSION "1.0"
+
 #if !defined(_WIN32) && !defined(_WIN64)
 #include <sys/param.h>
 #define min MIN
