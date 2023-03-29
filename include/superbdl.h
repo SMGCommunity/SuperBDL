@@ -15,4 +15,38 @@
 #define RETURN_FALSE_IF_NULL(var) if((var) == NULL) return false;
 #define RETURN_FALSE_IF_FALSE(var) if(!(var)) return false;
 
+
+struct InputArgsHolder
+{
+	bool format_forced;
+	bool output_bdl;
+	enum J3DImportOptimizations optimizationFlags;
+	const char* input_path;
+	const char* output_path;
+	//string[]*
+	char** mat_path;
+	int mat_num;
+	//string[]*
+	char** tex_path;
+	int tex_num;
+};
+
+//These have i* in case we need to edit i.
+
+bool tryCalcOptimizations(int* i, char** argv, struct InputArgsHolder* ArgHolder);
+bool tryReadMatInput(int* i, char** argv, struct InputArgsHolder* ArgHolder);
+bool tryReadTexInput(int* i, char** argv, struct InputArgsHolder* ArgHolder);
+bool tryReadMultiInput(int* i, char** argv, const char** resultPtr, int* elementNum, const char* keyword, const char* shortkeyword);
+
+
+// Return 1 if str is a number, 0 otherwise.
+bool isNumeric(const char* str) {
+	while (*str) {
+		if (*str < '0' || *str > '9')
+			return false;
+		++str;
+	}
+	return true;
+}
+
 #endif
