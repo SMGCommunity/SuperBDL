@@ -31,6 +31,7 @@ static void show_help(void) {
 bool tryCalcOptimizations(int* i, char** argv, struct InputArgsHolder* ArgHolder)
 {
 	//TODO!
+	return true;
 }
 
 bool tryReadMatInput(int* i, char** argv, struct InputArgsHolder* ArgHolder)

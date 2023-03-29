@@ -8,6 +8,10 @@
 #define min MIN
 #endif
 
+#include <ctype.h>
+
+#include "bmd.h"
+
 #define MAX_STRING_ALLOCATION 256
 
 #define RETURN_VOID_IF_NULL(var) if((var) == NULL) return;
@@ -36,13 +40,13 @@ struct InputArgsHolder
 bool tryCalcOptimizations(int* i, char** argv, struct InputArgsHolder* ArgHolder);
 bool tryReadMatInput(int* i, char** argv, struct InputArgsHolder* ArgHolder);
 bool tryReadTexInput(int* i, char** argv, struct InputArgsHolder* ArgHolder);
-bool tryReadMultiInput(int* i, char** argv, const char** resultPtr, int* elementNum, const char* keyword, const char* shortkeyword);
+bool tryReadMultiInput(int* i, char** argv, char** resultPtr, int* elementNum, const char* keyword, const char* shortkeyword);
 
 
 // Return 1 if str is a number, 0 otherwise.
-bool isNumeric(const char* str) {
+static inline bool isNumeric(const char* str) {
 	while (*str) {
-		if (*str < '0' || *str > '9')
+		if (!isdigit(*str))
 			return false;
 		++str;
 	}
