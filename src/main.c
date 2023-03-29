@@ -28,10 +28,33 @@ static void show_help(void) {
 	puts("placeholder help text");
 }
 
+#define SingleOptimizationCheck(ArgHolder, cmd, flag) \
+	if (strcmp(argv[*i], cmd)) \
+	{ \
+		ArgHolder->optimizationFlags |= flag; \
+		return true;\
+	}
+
 bool tryCalcOptimizations(int* i, char** argv, struct InputArgsHolder* ArgHolder)
 {
-	//TODO!
-	return true;
+	SingleOptimizationCheck(ArgHolder, "--tristrip", OPTIMIZE_GEOMETRY);
+	SingleOptimizationCheck(ArgHolder, "--datatype", OPTIMIZE_DATATYPES);
+	SingleOptimizationCheck(ArgHolder, "--remap", OPTIMIZE_REMAP);
+	SingleOptimizationCheck(ArgHolder, "--matdata", OPTIMIZE_MATDATA);
+	SingleOptimizationCheck(ArgHolder, "--tevstage", OPTIMIZE_TEVSTAGE);
+	SingleOptimizationCheck(ArgHolder, "--blending", OPTIMIZE_BLENDING);
+	SingleOptimizationCheck(ArgHolder, "--teximg", OPTIMIZE_TEX_IMG);
+	SingleOptimizationCheck(ArgHolder, "--texpal", OPTIMIZE_TEX_PAL);
+
+	SingleOptimizationCheck(ArgHolder, "-Og", OPTIMIZE_GEOMETRY);
+	SingleOptimizationCheck(ArgHolder, "-Om", OPTIMIZE_MATERIAL);
+	SingleOptimizationCheck(ArgHolder, "-Ot", OPTIMIZE_TEXTURE);
+
+	SingleOptimizationCheck(ArgHolder, "-Os", OPTIMIZE_SIZE);
+	SingleOptimizationCheck(ArgHolder, "-O1", OPTIMIZE_SPEED);
+	SingleOptimizationCheck(ArgHolder, "-O2", OPTIMIZE_ALL);
+
+	return false;
 }
 
 bool tryReadMatInput(int* i, char** argv, struct InputArgsHolder* ArgHolder)
@@ -132,7 +155,7 @@ int main(int argc, char **argv) {
 		if (tryReadTexInput(&i, argv, &ArgHolder))
 			continue;
 
-		if (!tryCalcOptimizations(&argc, argv, &ArgHolder))
+		if (tryCalcOptimizations(&argc, argv, &ArgHolder))
 			continue;
 
 		if (argv[i][0] == '-')
