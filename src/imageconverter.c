@@ -146,24 +146,20 @@ unsigned int calculateImageBufferSize_CMPR(unsigned int width, unsigned int heig
 
 
 struct dxt1_image rgba_to_dxt1(struct rgba_image *src, int alpha_cutoff, bool high_quality) {
-	const int BLOCK_SIZE = 4;
-	const int NUM_PIXELS_PER_BLOCK = BLOCK_SIZE * BLOCK_SIZE;
-	const int BYTES_PER_BLOCK = BLOCK_SIZE * 2;
+	int num_blocks_wide = src->width / DXT_BLOCK_SIZE;
+	int num_blocks_high = src->height / DXT_BLOCK_SIZE;
 
-	int num_blocks_wide = src->width / BLOCK_SIZE;
-	int num_blocks_high = src->height / BLOCK_SIZE;
-
-	size_t size = num_blocks_wide * num_blocks_high * BYTES_PER_BLOCK;
+	size_t size = num_blocks_wide * num_blocks_high * DXT_BYTES_PER_BLOCK;
 	unsigned char *dest = malloc(size);
 
 	for (int j = 0; j < num_blocks_high; ++j) {
 		for (int i = 0; i < num_blocks_wide; ++i) {
-			unsigned char src_block[NUM_PIXELS_PER_BLOCK * 4];
+			unsigned char src_block[DXT_PIXELS_PER_BLOCK * 4];
 			int index = 0;
 
-			for (int y = 0; y < BLOCK_SIZE; ++y) {
-				for (int x = 0; x < BLOCK_SIZE; ++x) {
-					union Vector4uc src_pixel = src->pixels[j * BLOCK_SIZE + y][i * BLOCK_SIZE + x];
+			for (int y = 0; y < DXT_BLOCK_SIZE; ++y) {
+				for (int x = 0; x < DXT_BLOCK_SIZE; ++x) {
+					union Vector4uc src_pixel = src->pixels[j * DXT_BLOCK_SIZE + y][i * DXT_BLOCK_SIZE + x];
 
 					if (alpha_cutoff >= 0 && src_pixel.a <= alpha_cutoff)
 						src_pixel.a = 0;
@@ -175,7 +171,7 @@ struct dxt1_image rgba_to_dxt1(struct rgba_image *src, int alpha_cutoff, bool hi
 				}
 			}
 
-			unsigned char *dest_block = dest + (j * num_blocks_wide + i) * BYTES_PER_BLOCK;
+			unsigned char *dest_block = dest + (j * num_blocks_wide + i) * DXT_BYTES_PER_BLOCK;
 			stb_compress_dxt_block(dest_block, src_block, alpha_cutoff, high_quality ? STB_DXT_HIGHQUAL : STB_DXT_NORMAL);
 		}
 	}

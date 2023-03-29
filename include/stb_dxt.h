@@ -44,6 +44,10 @@
 extern "C" {
 #endif
 
+#define DXT_BLOCK_SIZE		4
+#define DXT_PIXELS_PER_BLOCK	DXT_BLOCK_SIZE * DXT_BLOCK_SIZE
+#define DXT_BYTES_PER_BLOCK	DXT_BLOCK_SIZE * 2
+
 // compression mode (bitflags)
 #define STB_DXT_NORMAL    0
 #define STB_DXT_DITHER    1   // use dithering. was always dubious, now deprecated. does nothing!
