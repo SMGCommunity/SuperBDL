@@ -8,6 +8,7 @@
 #include "tex1.h"
 
 #define MAGIC_BMT "bmt3"
+#define EXTENSION_BMT ".bmt"
 
 struct BMT
 {
@@ -41,5 +42,18 @@ struct J3DMaterial* getMaterial(struct BMT* bmt, const char* name);
 /// </summary>
 /// <returns>NULL if the texture is not found</returns>
 struct JUTTexture* getTexture(struct BMT* bmt, const char* name);
+
+/// <summary>
+/// Releases a BMT (and it's components!!) from memory
+/// </summary>
+/// <param name="target"></param>
+void freeBMT(struct BMT* target)
+{
+	for (size_t i = 0; i < target->MaterialCount; i++)
+	{
+		freemat(target->Materials[i]);
+	}
+	//TODO: Free textures
+}
 
 #endif /* __BMT_H */
