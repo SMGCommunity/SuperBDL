@@ -257,3 +257,18 @@ bool texcmp(struct JUTTexture* tex1, struct JUTTexture* tex2) {
 
 	return true;
 }
+
+void freeTex(struct JUTTexture* tex)
+{
+	if (tex->Name)
+		free(tex->Name);
+
+	if (tex->ImageData)
+		free(tex->ImageData);
+
+	if (tex->PaletteData)
+		free(tex->PaletteData);
+
+	if (tex)
+		free(tex);
+}

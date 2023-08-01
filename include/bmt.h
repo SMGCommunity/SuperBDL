@@ -47,13 +47,6 @@ struct JUTTexture* getTexture(struct BMT* bmt, const char* name);
 /// Releases a BMT (and it's components!!) from memory
 /// </summary>
 /// <param name="target"></param>
-void freeBMT(struct BMT* target)
-{
-	for (size_t i = 0; i < target->MaterialCount; i++)
-	{
-		freemat(target->Materials[i]);
-	}
-	//TODO: Free textures
-}
+void freeBMT(struct BMT* target);
 
 #endif /* __BMT_H */

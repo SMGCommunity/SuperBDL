@@ -53,3 +53,15 @@ struct JUTTexture* getTexture(struct BMT* bmt, const char* name)
 
 	return NULL;
 }
+
+void freeBMT(struct BMT* target)
+{
+	for (size_t i = 0; i < target->MaterialCount; i++)
+	{
+		freemat(target->Materials[i]);
+	}
+	for (size_t i = 0; i < target->TextureCount; i++)
+	{
+		freeTex(target->Textures[i]);
+	}
+}

@@ -860,4 +860,29 @@ bool matcmp(struct J3DMaterial* mat1, struct J3DMaterial* mat2) {
 	return true;
 }
 
+bool freemat(struct J3DMaterial* mat)
+{
+	for (size_t i = 0; i < 8; i++)
+	{
+		if (mat->Textures[i])
+			return false;
+	}
+
+	if (mat->Name)
+		free(mat->Name);
+
+	for (size_t i = 0; i < 10; i++)
+	{
+		if (mat->TextureMatricies[i])
+			free(mat->TextureMatricies[i]);
+	}
+	for (size_t i = 0; i < 20; i++)
+	{
+		if (mat->PostTextureMatricies[i])
+			free(mat->PostTextureMatricies[i]);
+	}
+
+	return true;
+}
+
 #pragma warning(default:4267) //Re-enable "Possible loss of Data"...just in case...

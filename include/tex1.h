@@ -105,5 +105,6 @@ int calculateImageSize(enum GXImageFormats Format, unsigned short width, unsigne
 bool writeTEX1(const struct aiScene *data);
 
 bool texcmp(struct JUTTexture* tex1, struct JUTTexture* tex2);
+void freeTex(struct JUTTexture* tex);
 
 #endif /* __TEX1_H */

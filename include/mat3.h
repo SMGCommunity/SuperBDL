@@ -841,6 +841,12 @@ bool writeMAT3(const struct aiScene *data);
 
 bool matcmp(struct J3DMaterial* mat1, struct J3DMaterial* mat2);
 
-void freemat(struct J3DMaterial* mat);
+/// <summary>
+/// returns FALSE if the material could not be freed.<para/>
+/// Make sure to manually free each texture
+/// </summary>
+/// <param name="mat"></param>
+/// <returns></returns>
+bool freemat(struct J3DMaterial* mat);
 
 #endif /* __MAT3_H */
