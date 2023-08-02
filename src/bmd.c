@@ -28,13 +28,9 @@ unsigned int getChunkPosition(FILE* fp, const char* magic)
 	return 0; //Zero means "Not Found"
 }
 
-bool write_bmd(const struct aiScene *model_data, FILE *output_fp, bool write_bdl) {
+bool write_bmd(const struct aiScene *model_data, FILE *output_fp, struct BMT* MatTexCollection, bool write_bdl) {
 	fwrite(MAGIC_J3D, 4, 1, output_fp);
-
-	if (write_bdl)
-		fwrite(MAGIC_BDL, 5, 1, output_fp);
-	else
-		fwrite(MAGIC_BMD, 5, 1, output_fp);
+	fwrite(write_bdl ? MAGIC_BDL : MAGIC_BMD, 4, 1, output_fp);
 
 	// true for success, false for error
 	return true;

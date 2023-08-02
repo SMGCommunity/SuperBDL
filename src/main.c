@@ -138,7 +138,7 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	if (!write_bmd(model_data, output_fp, ArgHolder.output_bdl)) {
+	if (!write_bmd(model_data, output_fp, MatTexCollection, ArgHolder.output_bdl)) {
 		// failed
 		return 1;
 	}
