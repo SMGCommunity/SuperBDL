@@ -122,6 +122,7 @@ int main(int argc, char** argv) {
 	//Read the requested materials SECOND
 
 	struct BMT* MatTexCollection = calloc(1, sizeof(struct BMT));
+	//TODO: Load this ^^^^ data
 
 
 	const struct aiScene* model_data = aiImportFile(ArgHolder.input_path, 0);
