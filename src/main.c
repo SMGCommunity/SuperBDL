@@ -122,8 +122,21 @@ int main(int argc, char** argv) {
 	//Read the requested materials SECOND
 
 	struct BMT* MatTexCollection = calloc(1, sizeof(struct BMT));
-	//TODO: Load this ^^^^ data
-
+	//TODO: Test loading this ^^^^ data
+	for (size_t i = 0; i < ArgHolder.tex_num; i++)
+	{
+		char* current = ArgHolder.tex_path[i];
+		bool result = tryLoadTexture(current, MatTexCollection);
+		if (!result)
+			continue;
+	}
+	for (size_t i = 0; i < ArgHolder.mat_num; i++)
+	{
+		char* current = ArgHolder.mat_path[i];
+		bool result = tryLoadMaterial(current, MatTexCollection);
+		if (!result)
+			continue;
+	}
 
 	const struct aiScene* model_data = aiImportFile(ArgHolder.input_path, 0);
 
