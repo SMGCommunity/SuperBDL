@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
 		if (tryReadTexInput(&i, argv, &ArgHolder))
 			continue;
 
-		if (tryCalcOptimizations(&argc, argv, &ArgHolder))
+		if (tryCalcOptimizations(&i, argv, &ArgHolder))
 			continue;
 
 		if (argv[i][0] == '-')
@@ -152,7 +152,7 @@ int main(int argc, char** argv) {
 
 
 #define SingleOptimizationCheck(ArgHolder, cmd, flag) \
-	if (strcmp(argv[*i], cmd)) \
+	if (!strcmp(argv[*i], cmd)) \
 	{ \
 		ArgHolder->optimizationFlags |= flag; \
 		return true;\
@@ -196,12 +196,20 @@ bool tryReadMultiInput(int* i, char** argv, char** resultPtr, int* elementNum, c
 	++*i; //Skip to the number(?) arg
 
 	long EntryCount = 1;
-	if (isNumeric(argv[*i]))
+	if (argv[*i] == NULL)
 	{
-		long value = strtol(argv[*i], NULL, 10);
-		EntryCount = value;
-		++*i; //Advance to the inputs
+		--* i;
+		return false;
 	}
+	if (!isNumeric(argv[*i]))
+	{
+		--* i;
+		return false;
+	}
+
+	long value = strtol(argv[*i], NULL, 10);
+	EntryCount = value;
+	++* i; //Advance to the inputs
 
 	//Reallocate the array
 	int CurrentNum = *elementNum;
