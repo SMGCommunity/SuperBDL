@@ -1,5 +1,8 @@
 # SuperBDL
 
+THIS PROJECT IS CURRENTLY UNFINISHED
+If you are interested in continuing this project, you are more than welcome to do so.
+
 ## Building
 
 ### Linux
